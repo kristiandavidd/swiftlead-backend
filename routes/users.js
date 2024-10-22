@@ -14,10 +14,6 @@ let users = [
     },
 ]
 
-router.get('/', (req, res) => {
-    res.json(users);
-});
-
 router.get('/:id', (req, res) => {
     const user = users.find(user => user.id === parseInt(req.params.id));
     if (!user) {

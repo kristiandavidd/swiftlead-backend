@@ -1,13 +1,27 @@
 const con = require('../config/db');
 
-const saveAverageToDatabase = (avgTemp, avgHumidity) => {
-    const timestamp = new Date();  // Waktu saat data disimpan
-    const query = 'INSERT INTO sensor (suhu, kelembaban, timestamp) VALUES (?, ?, ?)';
-    const values = [avgTemp.toFixed(2), avgHumidity.toFixed(2), timestamp];
+const saveAverageToDatabase = (data) => {
+    const { suhu, kelembapan, timestamp } = data;
 
-    connection.query(query, values, (err, result) => {
-        if (err) throw err;
-        console.log('Average data with timestamp inserted to MySQL:', result.insertId);
+    const avgTemp = parseFloat(suhu);
+    const avgHumidity = parseFloat(kelembapan);
+
+    if (isNaN(avgTemp) || isNaN(avgHumidity)) {
+        console.error('Invalid data: avgTemp or avgHumidity is not a number');
+        return Promise.reject(new Error('Invalid data'));
+    }
+
+    return new Promise((resolve, reject) => {
+        const query = 'INSERT INTO sensor (suhu, kelembapan, timestamp) VALUES (?, ?, ?)';
+        const values = [avgTemp.toFixed(2), avgHumidity.toFixed(2), timestamp];
+
+        con.query(query, values, (err, result) => {
+            if (err) {
+                reject(err);  
+            } else {
+                resolve(result.insertId);
+            }
+        });
     });
 };
 
