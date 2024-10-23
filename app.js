@@ -11,13 +11,13 @@ const server = http.createServer(app);
 const io = socketIo(server, {
     path: '/socket.io',
     cors: {
-        origin: 'https://swiftlead-frontend.vercel.app/',
+        origin: 'https://swiftlead-frontend.vercel.app',
         methods: ['GET', 'POST'],
     },
 });
 
 app.use(cors({
-    origin: 'https://swiftlead-frontend.vercel.app/',
+    origin: 'https://swiftlead-frontend.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
