@@ -6,6 +6,7 @@ const saltRounds = 10;
 const register = (req, res) => {
     const { username, email, password } = req.body;
     console.log('Registering user:', req.body);
+    console.log('Headers:', req.headers);
 
     db.query('SELECT * FROM users WHERE email = ?', [email], async (err, result) => {
         if (err) {
