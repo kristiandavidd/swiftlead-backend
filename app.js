@@ -27,13 +27,17 @@ listenFirebaseChanges(db.ref('/'), io);
 startDataSavingInterval();
 
 const usersRouter = require('./routes/users');
-app.use('/api/users', usersRouter);
-
 const authRouter = require('./routes/auth');
-app.use('/api/auth', authRouter);
-
 const controlRouter = require('./routes/control');
+
+app.use('/users', usersRouter);
+app.use('/auth', authRouter);
 app.use('/control', controlRouter);
+
+
+server.listen(port, () => {
+    console.log(`Server is running on port: ${port}`);
+});
 
 app.use((req, res, next) => {
     res.status(404).send("Sorry can't find that!");
@@ -42,10 +46,6 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
-});
-
-server.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
 });
 
 module.exports = { io };
