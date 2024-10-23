@@ -55,7 +55,7 @@ const saveDataAtInterval = () => {
 
 const startDataSavingInterval = () => {
     console.log('Starting global data saving interval...');
-    setInterval(saveDataAtInterval, 3600000); 
+    setInterval(saveDataAtInterval, 60000); 
 };
 
 module.exports = { listenFirebaseChanges, startDataSavingInterval };
