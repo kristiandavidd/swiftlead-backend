@@ -6,6 +6,7 @@ const db = mysql.createPool({
     user: process.env.MYSQLUSER,
     password: process.env.MYSQLPASSWORD,
     database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -13,9 +14,9 @@ const db = mysql.createPool({
 
 async function testConnection() {
     try {
-        const connection = await db.getConnection(); 
+        const connection = await db.getConnection();
         console.log('Connected to database');
-        connection.release(); 
+        connection.release();
     } catch (err) {
         console.error('Error connecting to database:', err);
     }
