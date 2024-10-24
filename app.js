@@ -24,6 +24,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.options('*', cors());
+app.use(compression({ level: 0 }));
 
 listenFirebaseChanges(db.ref('/'), io);
 startDataSavingInterval();
