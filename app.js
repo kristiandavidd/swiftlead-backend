@@ -17,7 +17,7 @@ const io = socketIo(server, {
 });
 
 app.use(cors({
-    origin: "https://swiftlead-frontend.vercel.app",
+    origin: "*",
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
