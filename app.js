@@ -4,6 +4,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const { listenFirebaseChanges, startDataSavingInterval } = require('./controllers/firebaseController');
 const { db } = require('./config/firebase');
+const compression = require('compression');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -16,6 +17,8 @@ const io = socketIo(server, {
     },
 });
 
+app.use(compression());
+
 app.use(cors({
     origin: "*",
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -24,7 +27,6 @@ app.use(cors({
 }));
 app.use(express.json());
 app.options('*', cors());
-app.use(compression({ level: 0 }));
 
 listenFirebaseChanges(db.ref('/'), io);
 startDataSavingInterval();
