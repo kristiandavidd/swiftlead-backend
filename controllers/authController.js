@@ -10,7 +10,6 @@ const register = (req, res) => {
     console.log('Headers:', {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`
     });
 
     db.query('SELECT * FROM users WHERE email = ?', [email], async (err, result) => {
