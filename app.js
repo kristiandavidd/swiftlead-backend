@@ -20,9 +20,10 @@ app.use(cors({
     origin: "*",
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Auth-Token'],
 }));
 app.use(express.json());
+app.options('*', cors());
 
 listenFirebaseChanges(db.ref('/'), io);
 startDataSavingInterval();
