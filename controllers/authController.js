@@ -10,6 +10,7 @@ const register = (req, res) => {
     console.log('Headers:', {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`
     });
 
     db.query('SELECT * FROM users WHERE email = ?', [email], async (err, result) => {
@@ -20,9 +21,11 @@ const register = (req, res) => {
         if (result.length > 0) {
             return res.status(400).json({ message: 'Email already exists' });
         }
+        console.log('registration start...');
 
         try {
             const hashedPassword = await bcrypt.hash(password, saltRounds);
+            console.log('hashed password')
 
             db.query('INSERT INTO users (email, password) VALUES (?, ?)',
                 [email, hashedPassword],
@@ -31,6 +34,7 @@ const register = (req, res) => {
                         console.error('Error inserting user into database:', err);
                         return res.status(500).json({ message: 'Server error' });
                     }
+                    console.log('user inserted');
 
                     res.status(201).json({ message: 'User registered successfully!' });
                 }
@@ -39,6 +43,7 @@ const register = (req, res) => {
             console.error('Error hashing password:', error);
             res.status(500).json({ message: 'Server error' });
         }
+        console.log('registration end...');
     });
 };
 

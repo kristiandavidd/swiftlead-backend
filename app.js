@@ -27,6 +27,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.options('*', cors());
+app.use(express.json({ limit: '1mb' }));
 
 listenFirebaseChanges(db.ref('/'), io);
 startDataSavingInterval();
