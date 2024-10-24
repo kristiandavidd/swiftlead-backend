@@ -5,7 +5,8 @@ const saltRounds = 10;
 
 const register = (req, res) => {
     const { username, email, password } = req.body;
-    console.log('Request Body:', data);
+    console.log('Registering user:', req.body);
+    console.log('Headers:', req.headers);
     console.log('Headers:', {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
