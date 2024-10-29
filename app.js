@@ -12,15 +12,22 @@ const server = http.createServer(app);
 const io = socketIo(server, {
     path: '/socket.io',
     cors: {
-        origin: '*',
+        origin: [
+            'http://localhost:3000',
+            'https://swiftlead-frontend.vercel.app'
+        ],
         methods: ['GET', 'POST'],
+        credentials: true,
     },
 });
 
 app.use(compression());
 
 app.use(cors({
-    origin: "*",
+    origin: [
+        'http://localhost:3000',
+        'https://swiftlead-frontend.vercel.app'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Auth-Token'],
