@@ -16,6 +16,8 @@ const listenFirebaseChanges = (firebaseRef, io) => {
 
             io.emit('sensorData', { suhu, kelembapan });
 
+            console.log('Data sent to client:', { suhu, kelembapan });
+
             lastData = { suhu, kelembapan };
             dataBuffer.push({ suhu, kelembapan });
         } else {
@@ -55,7 +57,7 @@ const saveDataAtInterval = () => {
 
 const startDataSavingInterval = () => {
     console.log('Starting global data saving interval...');
-    setInterval(saveDataAtInterval, 3600000); 
+    setInterval(saveDataAtInterval, 3600000);
 };
 
 module.exports = { listenFirebaseChanges, startDataSavingInterval };

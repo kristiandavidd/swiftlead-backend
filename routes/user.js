@@ -1,18 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const { getAllUser } = require('../controllers/userController');
 
-let users = [
-    {
-        id: 1,
-        username: 'emil',
-        email: 'emiliana@swiftlead.id',
-    },
-    {
-        id: 2,
-        username: 'evelyn',
-        email: 'evelyn@swiftlead.id',
-    },
-]
+router.get('/', getAllUser);
 
 router.get('/:id', (req, res) => {
     const user = users.find(user => user.id === parseInt(req.params.id));

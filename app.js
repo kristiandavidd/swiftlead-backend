@@ -5,8 +5,11 @@ const socketIo = require('socket.io');
 const { listenFirebaseChanges, startDataSavingInterval } = require('./controllers/firebaseController');
 const { db } = require('./config/firebase');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 const app = express();
+app.use(cookieParser());
 const port = process.env.PORT || 8080;
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -39,11 +42,17 @@ app.use(express.json({ limit: '1mb' }));
 listenFirebaseChanges(db.ref('/'), io);
 startDataSavingInterval();
 
-const usersRouter = require('./routes/users');
+const secretKey = process.env.JWT_SECRET;
+if (!secretKey) {
+    console.error('JWT_SECRET is not set');
+    process.exit(1);
+}
+
+const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
 const controlRouter = require('./routes/control');
 
-app.use('/users', usersRouter);
+app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/control', controlRouter);
 
