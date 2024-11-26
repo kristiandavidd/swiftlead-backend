@@ -12,7 +12,7 @@ const register = async (req, res) => {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { email, password } = req.body;
+    const { email, name, password } = req.body;
 
     try {
         const [result] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
@@ -22,9 +22,44 @@ const register = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        await db.query('INSERT INTO users (email, password) VALUES (?, ?)', [email, hashedPassword]);
+        // Insert user into the database
+        const [insertResult] = await db.query(
+            'INSERT INTO users ( email, name, password) VALUES (?, ?, ?)',
+            [email, name, hashedPassword]
+        );
 
-        res.status(201).json({ message: 'User registered successfully!' });
+        // Retrieve the newly created user
+        const [newUserResult] = await db.query('SELECT * FROM users WHERE id = ?', [insertResult.insertId]);
+        const newUser = newUserResult[0];
+
+        // Generate JWT token
+        const token = jwt.sign(
+            {
+                id: newUser.id,
+                email: newUser.email,
+                name: newUser.name,
+                location: newUser.location,
+                no_telp: newUser.no_telp,
+                img_profile: newUser.img_profile,
+                role: newUser.role,
+            },
+            jwtSecret,
+            { expiresIn: '1h' }
+        );
+
+        res.status(201).json({
+            message: 'User registered successfully!',
+            token,
+            user: {
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                location: newUser.location,
+                no_telp: newUser.no_telp,
+                img_profile: newUser.img_profile,
+                role: newUser.role,
+            },
+        });
     } catch (error) {
         console.error('Database query error:', error);
         res.status(500).json({ message: 'Server error' });
@@ -54,7 +89,15 @@ const login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, email: user.email, name: user.name, role: user.role },
+            {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                location: user.location,
+                no_telp: user.no_telp,
+                img_profile: user.img_profile,
+                role: user.role,
+            },
             jwtSecret,
             { expiresIn: '1h' }
         );
@@ -62,7 +105,14 @@ const login = async (req, res) => {
         res.status(200).json({
             message: 'Login successful',
             token,
-            user: { email: user.email, name: user.name, role: user.role, },
+            user: {
+                email: user.email,
+                name: user.name,
+                location: user.location,
+                no_telp: user.no_telp,
+                img_profile: user.img_profile,
+                role: user.role,
+            },
         });
     } catch (err) {
         console.error('Database query error:', err);

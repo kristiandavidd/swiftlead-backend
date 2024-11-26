@@ -51,10 +51,12 @@ if (!secretKey) {
 const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
 const controlRouter = require('./routes/control');
+const profileRouter = require('./routes/profile');
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/control', controlRouter);
+app.use('/profile', profileRouter);
 
 
 server.listen(port, () => {
