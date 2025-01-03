@@ -7,6 +7,7 @@ const { db } = require('./config/firebase');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 
 const app = express();
 app.use(cookieParser());
@@ -38,6 +39,9 @@ app.use(cors({
 app.use(express.json());
 app.options('*', cors());
 app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 listenFirebaseChanges(db.ref('/'), io);
 startDataSavingInterval();
@@ -52,11 +56,13 @@ const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
 const controlRouter = require('./routes/control');
 const profileRouter = require('./routes/profile');
+const articleRoutes = require('./routes/articles');
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/control', controlRouter);
 app.use('/profile', profileRouter);
+app.use('/articles', articleRoutes);
 
 
 server.listen(port, () => {
