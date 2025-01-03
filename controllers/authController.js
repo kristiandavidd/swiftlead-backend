@@ -67,6 +67,7 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
+    // Validasi input
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -75,6 +76,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // Cek apakah pengguna ada di database
         const [result] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
 
         if (result.length === 0) {
@@ -82,12 +84,22 @@ const login = async (req, res) => {
         }
 
         const user = result[0];
+
+        // Cek status user (-1 = inactive)
+        if (user.status === -1) {
+            return res.status(403).json({
+                message: 'Your account is inactive. Please contact support to activate your account.',
+            });
+        }
+
+        // Bandingkan password
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(401).json({ message: 'Incorrect password' });
         }
 
+        // Buat token JWT
         const token = jwt.sign(
             {
                 id: user.id,
@@ -102,6 +114,7 @@ const login = async (req, res) => {
             { expiresIn: '1h' }
         );
 
+        // Kirim respons sukses
         res.status(200).json({
             message: 'Login successful',
             token,
