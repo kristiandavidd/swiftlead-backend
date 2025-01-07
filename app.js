@@ -57,12 +57,16 @@ const authRouter = require('./routes/auth');
 const controlRouter = require('./routes/control');
 const profileRouter = require('./routes/profile');
 const articleRoutes = require('./routes/articles');
+const membershipRoutes = require('./routes/membership');
+const paymentRoutes = require('./routes/payment');
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
 app.use('/control', controlRouter);
 app.use('/profile', profileRouter);
 app.use('/articles', articleRoutes);
+app.use('/membership', membershipRoutes);
+app.use('/payment', paymentRoutes);
 
 
 server.listen(port, () => {

@@ -13,46 +13,46 @@ const getAllUser = async (req, res) => {
     }
 };
 
-// const updateUser = async (req, res) => {
-//     try {
-//         const userId = req.user.id; // Mendapatkan ID pengguna dari middleware autentikasi
-//         const { name, no_telp, location } = req.body;
+const updateUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.id; // Mendapatkan ID pengguna dari middleware autentikasi
+        const { name, no_telp, location } = req.body;
 
-//         // Membuat objek pembaruan dinamis
-//         const updates = {};
-//         if (name) updates.name = name;
-//         if (no_telp) updates.no_telp = no_telp;
-//         if (location) updates.location = location;
+        // Membuat objek pembaruan dinamis
+        const updates = {};
+        if (name) updates.name = name;
+        if (no_telp) updates.no_telp = no_telp;
+        if (location) updates.location = location;
 
-//         // Jika tidak ada data yang dikirimkan
-//         if (Object.keys(updates).length === 0) {
-//             return res.status(400).json({ message: 'No fields to update' });
-//         }
+        // Jika tidak ada data yang dikirimkan
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ message: 'No fields to update' });
+        }
 
-//         // Update data di database
-//         const [result] = await db.query(
-//             'UPDATE users SET ? WHERE id = ?',
-//             [updates, userId]
-//         );
+        // Update data di database
+        const [result] = await db.query(
+            'UPDATE users SET ? WHERE id = ?',
+            [updates, userId]
+        );
 
-//         if (result.affectedRows > 0) {
-//             // Mengambil data pengguna terbaru
-//             const [updatedUser] = await db.query(
-//                 'SELECT id, name, no_telp, location, img_profile FROM users WHERE id = ?',
-//                 [userId]
-//             );
-//             return res.status(200).json({
-//                 message: 'User updated successfully',
-//                 user: updatedUser[0],
-//             });
-//         } else {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(500).json({ message: 'Server error' });
-//     }
-// };
+        if (result.affectedRows > 0) {
+            // Mengambil data pengguna terbaru
+            const [updatedUser] = await db.query(
+                'SELECT id, name, no_telp, location, img_profile FROM users WHERE id = ?',
+                [userId]
+            );
+            return res.status(200).json({
+                message: 'User updated successfully',
+                user: updatedUser[0],
+            });
+        } else {
+            return res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
 
 const updateUserRole = async (req, res) => {
     const { id } = req.params;
@@ -96,13 +96,21 @@ const updateUserStatus = async (req, res) => {
 
         // Lakukan pembaruan status jika validasi lolos
         await db.query('UPDATE users SET status = ? WHERE id = ?', [status, id]);
-        res.json({ message: 'Membership updated successfully' });
+
+        // Jika status diubah menjadi -1, perbarui status membership menjadi suspended (2)
+        if (status === -1) {
+            await db.query(
+                `UPDATE membership SET status = 2 WHERE id_user = ?`,
+                [id]
+            );
+        }
+
+        res.json({ message: 'User status updated successfully' });
     } catch (err) {
-        console.error('Error updating membership:', err);
+        console.error('Error updating user status:', err);
         res.status(500).json({ error: err.message });
     }
 };
-
 
 const createUser = async (req, res) => {
     const { name, email, no_telp, location, role, status } = req.body;
@@ -134,23 +142,41 @@ const updateUser = async (req, res) => {
             `UPDATE users SET name = ?, email = ?, no_telp = ?, location = ?, role = ?, status = ? WHERE id = ?`,
             [name, email, no_telp, location, role || 0, status || 0, id]
         );
+
+        // Jika status diubah menjadi -1, perbarui membership menjadi suspended (2)
+        if (status === -1) {
+            await db.query(
+                `UPDATE membership SET status = 2 WHERE id_user = ?`,
+                [id]
+            );
+        }
+
         res.json({ message: 'User updated successfully' });
     } catch (err) {
+        console.error('Error updating user:', err);
         res.status(500).json({ error: err.message });
     }
 };
+
 
 // 🗑️ Delete User
 const deleteUser = async (req, res) => {
     const { id } = req.params;
 
     try {
+        // Hapus membership terlebih dahulu untuk mencegah pelanggaran FK (foreign key)
+        await db.query(`DELETE FROM membership WHERE id_user = ?`, [id]);
+
+        // Hapus user
         await db.query(`DELETE FROM users WHERE id = ?`, [id]);
-        res.json({ message: 'User deleted successfully' });
+
+        res.json({ message: 'User and associated memberships deleted successfully' });
     } catch (err) {
+        console.error('Error deleting user:', err);
         res.status(500).json({ error: err.message });
     }
 };
+
 
 const getUserById = async (req, res) => {
     try {
@@ -176,5 +202,6 @@ module.exports = {
     createUser,
     updateUser,
     deleteUser,
-    getUserById
+    getUserById,
+    updateUserProfile
 };
