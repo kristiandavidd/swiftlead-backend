@@ -59,6 +59,8 @@ const profileRouter = require('./routes/profile');
 const articleRoutes = require('./routes/articles');
 const membershipRoutes = require('./routes/membership');
 const paymentRoutes = require('./routes/payment');
+const WeeklyPriceRoutes = require('./routes/weekly-price');
+const SalesRoutes = require('./routes/sales');
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
@@ -67,7 +69,8 @@ app.use('/profile', profileRouter);
 app.use('/articles', articleRoutes);
 app.use('/membership', membershipRoutes);
 app.use('/payment', paymentRoutes);
-
+app.use('/weekly-price', WeeklyPriceRoutes);
+app.use('/sales', SalesRoutes);
 
 server.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
