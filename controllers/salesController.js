@@ -85,3 +85,57 @@ exports.getSalesByUserId = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch sales' });
     }
 };
+
+exports.cancelSale = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Check if the sale exists and its status allows cancellation
+        const [sale] = await db.query(`SELECT id, status FROM harvest_sales WHERE id = ?`, [id]);
+
+        if (sale.length === 0) {
+            return res.status(404).json({ message: "Sale not found." });
+        }
+
+        const { status } = sale[0];
+        if (status !== 0 && status !== 1 && status !== 6) {
+            return res
+                .status(400)
+                .json({ message: "Only pending or processing sales can be cancelled." });
+        }
+
+        // Update the status to "Cancelled" (4)
+        await db.query(`UPDATE harvest_sales SET status = 4 WHERE id = ?`, [id]);
+
+        res.status(200).json({ message: "Sale cancelled successfully." });
+    } catch (error) {
+        console.error("Error cancelling sale:", error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+};
+
+exports.rescheduleSale = async (req, res) => {
+    const { id } = req.params;
+    const { appointment_date } = req.body;
+
+    if (!appointment_date) {
+        return res.status(400).json({ message: "Appointment date is required." });
+    }
+
+    try {
+        const [result] = await db.query(
+            "UPDATE harvest_sales SET appointment_date = ?, status = 0 WHERE id = ?",
+            [appointment_date, id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Sale not found or already updated." });
+        }
+
+        res.json({ message: "Sale rescheduled successfully." });
+    } catch (error) {
+        console.error("Error rescheduling sale:", error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+};
+

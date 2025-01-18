@@ -3,25 +3,22 @@ let dataBuffer = [];
 let lastData = null;
 let startTime = Date.now();
 
-const listenFirebaseChanges = (firebaseRef, io) => {
-    console.log('Listening to Firebase changes...');
+const listenFirebaseChanges = (firebaseRef, io, installCode) => {
+    const devicePath = `/device/${installCode}`;
 
-    firebaseRef.on('value', (snapshot) => {
+    console.log(`Listening to Firebase changes for device: ${installCode}`);
+
+    const ref = firebaseRef.child(devicePath);
+
+    // Dengarkan perubahan data Firebase
+    ref.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            const kelembapan = data.Kelembapan;
-            const suhu = data.Suhu;
-
-            console.log('Data received from Firebase:', { suhu, kelembapan });
-
-            io.emit('sensorData', { suhu, kelembapan });
-
-            console.log('Data sent to client:', { suhu, kelembapan });
-
-            lastData = { suhu, kelembapan };
-            dataBuffer.push({ suhu, kelembapan });
+            io.to(socket.id).emit('sensorData', { installCode: device.installCode, ...data });
+            console.log(`Data received for installCode ${device.installCode}:`, data);
         } else {
-            console.log('No data available');
+            console.log(`No data available for installCode: ${device.installCode}`);
+            io.to(socket.id).emit('sensorData', { installCode: device.installCode, Suhu: null, Kelembaban: null });
         }
     }, (error) => {
         console.error('Error fetching data from Firebase:', error);
