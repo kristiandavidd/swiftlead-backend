@@ -178,11 +178,9 @@ exports.addComment = async (req, res) => {
 
 // DELETE /comments/:id
 exports.deleteComment = async (req, res) => {
-    console.log("klik")
     try {
         const { id } = req.params; // ID komentar
-        const { user_id, user_role } = req.body; // ID pengguna dan peran pengguna
-        console.log(user_id, user_role);
+        const { user_id, user_role } = req.body;
 
         // Periksa apakah komentar ada dan milik pengguna
         const [comment] = await db.query(`SELECT user_id FROM comments WHERE id = ?`, [id]);
