@@ -193,7 +193,6 @@ const getUserById = async (req, res) => {
     }
 };
 
-
 module.exports = {
     getAllUser,
     updateUser,

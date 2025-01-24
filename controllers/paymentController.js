@@ -30,7 +30,7 @@ exports.createMembershipPayment = async (req, res) => {
                 first_name: name,
             },
             callbacks: {
-                finish: `${process.env.BASE_URL}/membership/success`
+                finish: `${process.env.BASE_URL}/member/success`
             }
         };
 

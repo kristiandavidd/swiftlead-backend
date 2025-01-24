@@ -6,7 +6,7 @@ const { addWeeklyPrice, getWeeklyPrices, getWeeklyPrice } = require('../controll
 router.post('/', addWeeklyPrice);
 
 // 📊 Get Weekly Prices
-router.get('/prices', getWeeklyPrices);
+router.get("/all", getWeeklyPrices);
 router.get('/', getWeeklyPrice);
 
 module.exports = router;

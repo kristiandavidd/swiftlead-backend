@@ -14,6 +14,7 @@ exports.createArticle = async (req, res) => {
         res.status(201).send({ id: result.insertId, message: "Article created" });
     } catch (err) {
         res.status(500).send({ error: err.message });
+        console.error('Error creating article:', err);
     }
 };
 
@@ -21,11 +22,11 @@ exports.createArticle = async (req, res) => {
 exports.updateArticle = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, content, tags_id, cover_image: existingCover } = req.body;
+        const { title, content, status, tags_id, cover_image: existingCover } = req.body;
         const coverImage = req.file ? `/uploads/${req.file.filename}` : existingCover;
 
-        const sql = `UPDATE articles SET title = ?, content = ?, cover_image = ?, tags_id = ? WHERE id = ?`;
-        await db.query(sql, [title, content, coverImage, tags_id, id]);
+        const sql = `UPDATE articles SET title = ?, content = ?, status = ?, cover_image = ?, tags_id = ? WHERE id = ?`;
+        await db.query(sql, [title, content, status, coverImage, tags_id, id]);
 
         res.send({ message: "Article updated" });
     } catch (err) {
@@ -84,6 +85,16 @@ exports.getAllPublishedArticles = async (req, res) => {
     }
 };
 
+exports.getAllMembershipArticles = async (req, res) => {
+    try {
+        const sql = `SELECT * FROM articles WHERE status = 2 ORDER BY created_at DESC `;
+        const results = await db.query(sql);
+        res.send(results);
+    } catch (err) {
+        res.status(500).send({ error: err.message });
+    }
+}
+
 // Dapatkan artikel berdasarkan ID
 exports.getArticleById = async (req, res) => {
     try {
@@ -111,8 +122,8 @@ exports.updateArticleStatus = async (req, res) => {
         const { status } = req.body;
 
         // Validasi status (harus 0 atau 1)
-        if (status !== 0 && status !== 1) {
-            return res.status(400).send({ message: 'Invalid status. Use 0 for Draft or 1 for Published.' });
+        if (status !== 0 && status !== 1 && status !== 2) {
+            return res.status(400).send({ message: 'Invalid status.' });
         }
 
         const sql = `UPDATE articles SET status = ? WHERE id = ?`;

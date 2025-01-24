@@ -14,9 +14,10 @@ router.delete('/comments/:id', articleController.deleteComment); // Delete a com
 router.delete('/:id', articleController.deleteArticle);
 router.get('/', articleController.getAllArticles);
 router.get('/published', articleController.getAllPublishedArticles);
+router.get('/member', articleController.getAllMembershipArticles);
 router.get('/:id', articleController.getArticleById);
 router.put('/:id/status', articleController.updateArticleStatus);
-router.get('/:id/recommendations', articleController. getRecommendedArticles); // Get recommendations
+router.get('/:id/recommendations', articleController.getRecommendedArticles); // Get recommendations
 router.get('/:id/comments', articleController.getComments); // Get comments
 router.post('/:id/comments', articleController.addComment); // Add a comment
 

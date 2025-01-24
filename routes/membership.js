@@ -6,7 +6,8 @@ const {
     addMembership,
     deleteMembership,
     updateMembership,
-    getMembershipById
+    getMembershipById,
+    getMembershipStatusById
 } = require('../controllers/membershipController');
 
 router.get('/', getMemberships);
@@ -15,5 +16,6 @@ router.post('/', addMembership);
 router.delete('/:id', deleteMembership);
 router.put('/:id', updateMembership);
 router.get('/:id', getMembershipById);
+router.get('/user/:id', getMembershipStatusById);
 
 module.exports = router;

@@ -93,6 +93,9 @@ const SalesRoutes = require('./routes/sales');
 const HarvestRoutes = require('./routes/harvest');
 const DeviceRoutes = require('./routes/device');
 const RequestRoutes = require('./routes/request');
+const TransactionRoutes = require('./routes/transactions');
+const VideoRoutes = require('./routes/video');
+const EbookRoutes = require('./routes/ebook');
 
 app.use('/user', userRouter);
 app.use('/auth', authRouter);
@@ -106,6 +109,9 @@ app.use('/sales', SalesRoutes);
 app.use('/harvest', HarvestRoutes);
 app.use('/device', DeviceRoutes);
 app.use('/request', RequestRoutes);
+app.use('/transactions', TransactionRoutes);
+app.use('/video', VideoRoutes);
+app.use('/ebook', EbookRoutes)
 
 server.listen(port, () => {
     console.log(`Server is running on port: ${port}`);

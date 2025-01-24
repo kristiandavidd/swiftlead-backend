@@ -113,3 +113,28 @@ exports.getMembershipById = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch membership details' });
     }
 };
+
+exports.getMembershipStatusById = async (req, res) => {
+    const { id } = req.params;
+    console.log(id);
+
+    try {
+        const [result] = await db.query(
+            `SELECT status, join_date, exp_date 
+             FROM membership 
+             WHERE id_user = ? 
+               AND status = 1 
+               AND CURDATE() BETWEEN join_date AND exp_date`,
+            [id]
+        );
+
+        if (result.length === 0) {
+            return res.status(200).json({ isActive: false });
+        }
+
+        res.status(200).json({ isActive: true });
+    } catch (error) {
+        console.error('Error fetching membership status:', error);
+        res.status(500).json({ error: 'Failed to fetch membership status' });
+    }
+};
