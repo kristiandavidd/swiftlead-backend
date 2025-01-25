@@ -17,7 +17,7 @@ exports.getTransactionById = async (req, res) => {
         res.json(transaction);
     } catch (error) {
         console.error('Error fetching transaction:', error);
-        res.status(500).json({ error: 'Failed to fetch transaction' });
+        res.status(500).json({ error: 'Gagal mendapatkan data transaksi.' });
     }
 };
 
@@ -45,10 +45,10 @@ exports.handleWebhook = async (req, res) => {
             transaction_time,
         ]);
 
-        res.json({ message: 'Webhook processed successfully' });
+        res.json({ message: 'Webhook berhasil diproses.' });
     } catch (error) {
         console.error('Error processing webhook:', error);
-        res.status(500).json({ error: 'Failed to process webhook' });
+        res.status(500).json({ error: 'Gagal dalam memproses webhook' });
     }
 };
 
@@ -61,7 +61,7 @@ exports.getAllTransactions = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error('Error fetching transactions:', error);
-        res.status(500).json({ error: 'Failed to fetch transactions' });
+        res.status(500).json({ error: 'Gagal mendapatkan data transaksi.' });
     }
 };
 
@@ -84,7 +84,7 @@ exports.getTransactionStatus = async (req, res) => {
         res.status(200).json(response.data);
     } catch (error) {
         console.error("Error fetching transaction status:", error);
-        res.status(500).json({ message: "Failed to fetch transaction status" });
+        res.status(500).json({ message: "Gagal mendapatkan data status transaksi." });
     }
 };
 
@@ -112,10 +112,10 @@ exports.saveTransaction = async (req, res) => {
             [order_id, transaction_status, gross_amount, payment_type, transaction_time]
         );
 
-        res.status(201).json({ message: "Transaction saved successfully" });
+        res.status(201).json({ message: "Transaksi berhasil disimpan." });
     } catch (error) {
         console.error("Error saving transaction:", error);
-        res.status(500).json({ message: "Failed to save transaction" });
+        res.status(500).json({ message: "Gagal dalam menyimpan data transaksi." });
     }
 };
 
@@ -126,6 +126,6 @@ exports.getAllTransactions = async (req, res) => {
         res.status(200).json(transactions);
     } catch (error) {
         console.error("Error fetching transactions:", error);
-        res.status(500).json({ message: "Failed to fetch transactions" });
+        res.status(500).json({ message: "Gagal dalam mendapatkan data transaksi." });
     }
 };

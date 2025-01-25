@@ -7,18 +7,16 @@ exports.createHarvestSale = async (req, res) => {
     const { user_id, province, price, bowl_weight, oval_weight, corner_weight, broken_weight, appointment_date } = req.body;
     const proof_photo = req.file ? `/uploads/harvest/${req.file.filename}` : null;
 
-    console.log('Creating harvest sale:', req.body);
-
     try {
         await db.query(
             `INSERT INTO harvest_sales (user_id, province, price, bowl_weight, oval_weight, corner_weight, broken_weight, appointment_date, proof_photo)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [user_id, province, price, bowl_weight, oval_weight, corner_weight, broken_weight, appointment_date, proof_photo]
         );
-        res.status(201).json({ message: 'Harvest sale created successfully' });
+        res.status(201).json({ message: 'Pengajuan penjualan berhasil dibuat.' });
     } catch (error) {
         console.error('Error creating harvest sale:', error);
-        res.status(500).json({ error: 'Failed to create harvest sale' });
+        res.status(500).json({ error: 'Gagal dalam membuat pengajuan penjualan.' });
     }
 };
 
@@ -30,7 +28,7 @@ exports.getSales = async (req, res) => {
         res.json(result);
     } catch (error) {
         console.error('Error fetching sales:', error);
-        res.status(500).json({ error: 'Failed to fetch sales' });
+        res.status(500).json({ error: 'Gagal dalam mengambil data penjualan.' });
     }
 };
 
@@ -41,13 +39,13 @@ exports.getSalesById = async (req, res) => {
         const [result] = await db.query(`SELECT * FROM harvest_sales WHERE id = ?`, [id]);
 
         if (result.length === 0) {
-            return res.status(404).json({ message: 'Sale not found' });
+            return res.status(404).json({ message: 'Penjualan tidak ditemukan.' });
         }
 
         res.json(result[0]);
     } catch (error) {
         console.error('Error fetching sale by ID:', error);
-        res.status(500).json({ error: 'Failed to fetch sale by ID' });
+        res.status(500).json({ error: 'Gagal mendapatkan data penjualan.' });
     }
 };
 
@@ -58,15 +56,15 @@ exports.updateSaleStatus = async (req, res) => {
 
     // Validate status value
     if (![0, 1, 2, 3, 4, 5].includes(status)) {
-        return res.status(400).json({ message: "Invalid status value" });
+        return res.status(400).json({ message: "Status tidak valid." });
     }
 
     try {
         await db.query("UPDATE harvest_sales SET status = ? WHERE id = ?", [status, id]);
-        res.json({ message: "Sale status updated successfully" });
+        res.json({ message: "Status penjualan berhasil diperbarui" });
     } catch (error) {
         console.error("Error updating sale status:", error);
-        res.status(500).json({ error: "Failed to update sale status" });
+        res.status(500).json({ error: "Gagal dalam memperbarui status." });
     }
 };
 
@@ -82,7 +80,7 @@ exports.getSalesByUserId = async (req, res) => {
         res.json(result);
     } catch (error) {
         console.error('Error fetching sales by user ID:', error);
-        res.status(500).json({ error: 'Failed to fetch sales' });
+        res.status(500).json({ error: 'Gagal mendapatkan data penjualan.' });
     }
 };
 
@@ -94,23 +92,23 @@ exports.cancelSale = async (req, res) => {
         const [sale] = await db.query(`SELECT id, status FROM harvest_sales WHERE id = ?`, [id]);
 
         if (sale.length === 0) {
-            return res.status(404).json({ message: "Sale not found." });
+            return res.status(404).json({ message: "Penjualan tidak ditemukan." });
         }
 
         const { status } = sale[0];
         if (status !== 0 && status !== 1 && status !== 6) {
             return res
                 .status(400)
-                .json({ message: "Only pending or processing sales can be cancelled." });
+                .json({ message: "Pembatalan tidak bisa dilakukan." });
         }
 
         // Update the status to "Cancelled" (4)
         await db.query(`UPDATE harvest_sales SET status = 4 WHERE id = ?`, [id]);
 
-        res.status(200).json({ message: "Sale cancelled successfully." });
+        res.status(200).json({ message: "Pembatalan pengajuan berhasil." });
     } catch (error) {
         console.error("Error cancelling sale:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 };
 
@@ -119,7 +117,7 @@ exports.rescheduleSale = async (req, res) => {
     const { appointment_date } = req.body;
 
     if (!appointment_date) {
-        return res.status(400).json({ message: "Appointment date is required." });
+        return res.status(400).json({ message: "Data janji temu wajib diisi." });
     }
 
     try {
@@ -129,13 +127,13 @@ exports.rescheduleSale = async (req, res) => {
         );
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Sale not found or already updated." });
+            return res.status(404).json({ message: "Data Penjualan tidak ditemukan." });
         }
 
-        res.json({ message: "Sale rescheduled successfully." });
+        res.json({ message: "Penjadwalan ulang berhasil dilakukan." });
     } catch (error) {
         console.error("Error rescheduling sale:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 };
 

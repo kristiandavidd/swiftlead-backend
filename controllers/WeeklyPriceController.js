@@ -9,7 +9,7 @@ exports.addWeeklyPrice = async (req, res) => {
     const { prices, week_start, week_end } = req.body;
 
     if (!week_start || !week_end || !Array.isArray(prices)) {
-        return res.status(400).json({ message: 'Invalid input data' });
+        return res.status(400).json({ message: 'Data masukan tidak valid.' });
     }
 
     try {
@@ -21,10 +21,10 @@ exports.addWeeklyPrice = async (req, res) => {
             );
         }
 
-        res.status(201).json({ message: 'Weekly prices added successfully' });
+        res.status(201).json({ message: 'Data acuan berhasil ditambahkan.' });
     } catch (err) {
         console.error('Error adding weekly prices:', err);
-        res.status(500).json({ error: 'Failed to add weekly prices' });
+        res.status(500).json({ error: 'Gagal menambahkan data acuan.' });
     }
 };
 
@@ -41,13 +41,13 @@ exports.getWeeklyPrice = async (req, res) => {
         `, [province, today]);
 
         if (result.length === 0) {
-            return res.status(404).json({ message: 'No price data available for this week.' });
+            return res.status(404).json({ message: 'Belum data acuan pada minggu ini.' });
         }
 
         res.json(result[0]);
     } catch (error) {
         console.error('Error fetching weekly prices:', error);
-        res.status(500).json({ error: 'Failed to fetch weekly price' });
+        res.status(500).json({ error: 'Gagal mendapatkan data acuan.' });
     }
 };
 
@@ -78,21 +78,21 @@ exports.getWeeklyPrices = async (req, res) => {
 
         if (results.length === 0) {
             return res.status(404).json({
-                message: "No weekly prices available for the current week.",
+                message: "Belum ada data acuan pada minggu ini.",
                 startDate,
                 endDate,
             });
         }
 
         res.status(200).json({
-            message: "Weekly prices fetched successfully.",
+            message: "Data acuan berhasil didapatkan.",
             data: results,
             startDate,
             endDate,
         });
     } catch (error) {
         console.error("Error fetching weekly prices:", error);
-        res.status(500).json({ message: "Failed to fetch weekly prices" });
+        res.status(500).json({ message: "Gagal mendapatkan data acuan minggu ini." });
     }
 };
 

@@ -48,7 +48,7 @@ exports.createMembershipPayment = async (req, res) => {
         });
     } catch (error) {
         console.error('Error creating membership payment:', error);
-        res.status(500).json({ error: 'Failed to create membership payment' });
+        res.status(500).json({ error: 'Gagal membuat pembayaran membership.' });
     }
 };
 
@@ -78,10 +78,10 @@ exports.handlePaymentNotification = async (req, res) => {
             );
         }
 
-        res.status(200).json({ message: "Notification processed successfully" });
+        res.status(200).json({ message: "Notifikasi berhasil diproses." });
     } catch (error) {
         console.error("Error processing notification:", error);
-        res.status(500).json({ error: "Failed to process notification" });
+        res.status(500).json({ error: "Gagal dalam memproses notifikasi." });
     }
 };
 

@@ -9,7 +9,7 @@ const getAllUser = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error('Database query error:', error);
-        res.status(500).json({ error: 'Error fetching user data' });
+        res.status(500).json({ error: 'Gagal mendapatkan data pengguna.' });
     }
 };
 
@@ -26,7 +26,7 @@ const updateUserProfile = async (req, res) => {
 
         // Jika tidak ada data yang dikirimkan
         if (Object.keys(updates).length === 0) {
-            return res.status(400).json({ message: 'No fields to update' });
+            return res.status(400).json({ message: 'Data pengguna sudah terbaru.' });
         }
 
         // Update data di database
@@ -42,15 +42,15 @@ const updateUserProfile = async (req, res) => {
                 [userId]
             );
             return res.status(200).json({
-                message: 'User updated successfully',
+                message: 'Profil pengguna berhasil diperbarui.',
                 user: updatedUser[0],
             });
         } else {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'Pengguna tidak ditemukan.' });
         }
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: 'Server error' });
+        return res.status(500).json({ message: 'Peladen mengalami galat.' });
     }
 };
 
@@ -59,12 +59,12 @@ const updateUserRole = async (req, res) => {
     const { role } = req.body;
 
     if (![0, 1].includes(role)) {
-        return res.status(400).json({ message: 'Invalid role value. Use 0 (User) or 1 (Admin).' });
+        return res.status(400).json({ message: 'Peran tidak valid.' });
     }
 
     try {
         await db.query('UPDATE users SET role = ? WHERE id = ?', [role, id]);
-        res.json({ message: 'Role updated successfully' });
+        res.json({ message: 'Peran berhasil diperbarui' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -77,7 +77,7 @@ const updateUserStatus = async (req, res) => {
 
     // Validasi status (hanya -1, 0, atau 1 yang diizinkan)
     if (![-1, 0, 1].includes(status)) {
-        return res.status(400).json({ message: 'Invalid account status.' });
+        return res.status(400).json({ message: 'Status akun tidak valid.' });
     }
 
     try {
@@ -85,12 +85,12 @@ const updateUserStatus = async (req, res) => {
         const [user] = await db.query('SELECT password FROM users WHERE id = ?', [id]);
 
         if (user.length === 0) {
-            return res.status(404).json({ message: 'User not found.' });
+            return res.status(404).json({ message: 'Pengguna tidak ditemukan.' });
         }
 
         if (!user[0].password && status !== -1) {
             return res.status(400).json({
-                message: 'Cannot change user status. User password is not set.'
+                message: 'Tidak bisa mengubah status pengguna. Password belum diatur.'
             });
         }
 
@@ -105,7 +105,7 @@ const updateUserStatus = async (req, res) => {
             );
         }
 
-        res.json({ message: 'User status updated successfully' });
+        res.json({ message: 'Status pengguna berhasil diperbarui.' });
     } catch (err) {
         console.error('Error updating user status:', err);
         res.status(500).json({ error: err.message });
@@ -116,7 +116,7 @@ const createUser = async (req, res) => {
     const { name, email, no_telp, location, role, status } = req.body;
 
     if (!name || !email || !no_telp || !location) {
-        return res.status(400).json({ message: 'All fields are required' });
+        return res.status(400).json({ message: 'Semua bagian harus diisi.' });
     }
 
     try {
@@ -125,7 +125,7 @@ const createUser = async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?)`,
             [name, email, no_telp, location, role || 0, status || 0]
         );
-        res.status(201).json({ message: 'User created successfully' });
+        res.status(201).json({ message: 'Pengguna berhasil ditambahkan.' });
     } catch (err) {
         res.status(500).json({ error: err.message });
         console.log(err);
@@ -151,7 +151,7 @@ const updateUser = async (req, res) => {
             );
         }
 
-        res.json({ message: 'User updated successfully' });
+        res.json({ message: 'Berhasil memperbarui pengguna.' });
     } catch (err) {
         console.error('Error updating user:', err);
         res.status(500).json({ error: err.message });
@@ -170,7 +170,7 @@ const deleteUser = async (req, res) => {
         // Hapus user
         await db.query(`DELETE FROM users WHERE id = ?`, [id]);
 
-        res.json({ message: 'User and associated memberships deleted successfully' });
+        res.json({ message: 'Pengguna berhasil dihapus.' });
     } catch (err) {
         console.error('Error deleting user:', err);
         res.status(500).json({ error: err.message });
@@ -185,7 +185,7 @@ const getUserById = async (req, res) => {
         const sql = `SELECT * FROM users WHERE id = ?`;
         const results = await db.query(sql, [id]);
         if (results.length === 0) {
-            return res.status(404).send({ message: 'User not found' });
+            return res.status(404).send({ message: 'Pengguna tidak ditemukan.' });
         }
         res.send(results[0]);
     } catch (err) {

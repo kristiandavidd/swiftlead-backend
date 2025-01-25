@@ -108,7 +108,7 @@ exports.getArticleById = async (req, res) => {
         `
         const results = await db.query(sql, [id]);
         if (results.length === 0) {
-            return res.status(404).send({ message: 'Article not found' });
+            return res.status(404).send({ message: 'Artikel tidak ditemukan' });
         }
         res.send(results[0]);
     } catch (err) {
@@ -123,15 +123,15 @@ exports.updateArticleStatus = async (req, res) => {
 
         // Validasi status (harus 0 atau 1)
         if (status !== 0 && status !== 1 && status !== 2) {
-            return res.status(400).send({ message: 'Invalid status.' });
+            return res.status(400).send({ message: 'Status tidak valid.' });
         }
 
         const sql = `UPDATE articles SET status = ? WHERE id = ?`;
         await db.query(sql, [status, id]);
 
-        res.send({ message: 'Article status updated successfully' });
+        res.send({ message: 'Status artikel berhasil diperbarui.' });
     } catch (err) {
-        console.error('Error updating article status:', err);
+        console.error('Error memperbarui status artikel:', err);
         res.status(500).send({ error: err.message });
     }
 };
@@ -167,7 +167,7 @@ exports.getComments = async (req, res) => {
         res.json(comments);
     } catch (error) {
         res.status(500).send({ error: error.message });
-        console.log('Error fetching comments:', error);
+        console.log('Galat mendapatkan data komentar:', error);
     }
 };
 
@@ -180,10 +180,10 @@ exports.addComment = async (req, res) => {
         const sql = `INSERT INTO comments (article_id, user_id, content) VALUES (?, ?, ?)`;
         await db.query(sql, [article_id, user_id, content]);
 
-        res.status(201).send({ message: "Comment added successfully" });
+        res.status(201).send({ message: "Komentar berhasil ditambahkan." });
     } catch (err) {
         res.status(500).send({ error: err.message });
-        console.error('Error adding comment:', err);
+        console.error('Galat menambahkan komentar:', err);
     }
 };
 
@@ -197,18 +197,18 @@ exports.deleteComment = async (req, res) => {
         const [comment] = await db.query(`SELECT user_id FROM comments WHERE id = ?`, [id]);
 
         if (!comment) {
-            return res.status(404).send({ message: "Comment not found" });
+            return res.status(404).send({ message: "Komentar tidak ditemukan." });
         }
 
         if (comment.user_id !== user_id && user_role !== 1) {
-            return res.status(403).send({ message: "Not authorized to delete this comment" });
+            return res.status(403).send({ message: "Anda tidak berhak menghapus komentar ini." });
         }
 
         await db.query(`DELETE FROM comments WHERE id = ?`, [id]);
-        res.send({ message: "Comment deleted successfully" });
+        res.send({ message: "Komentar berhasil dihapus." });
     } catch (err) {
         res.status(500).send({ error: err.message });
-        console.log('Error deleting comment:', err);
+        console.log('Galat:', err);
     }
 };
 

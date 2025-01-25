@@ -23,10 +23,10 @@ exports.addHarvest = async (req, res) => {
         );
         await Promise.all(harvestInsertPromises);
 
-        res.status(201).json({ message: "Harvest added successfully" });
+        res.status(201).json({ message: "Hasil panen berhasil ditambahkan" });
     } catch (error) {
         console.error("Error adding harvest:", error);
-        res.status(500).json({ error: "Failed to add harvest" });
+        res.status(500).json({ error: "Gagal dalam menambahkan hasil panen." });
     }
 };
 
@@ -41,6 +41,6 @@ exports.getHarvests = async (req, res) => {
         res.json(result);
     } catch (error) {
         console.error("Error fetching harvests:", error);
-        res.status(500).json({ error: "Failed to fetch harvests" });
+        res.status(500).json({ error: "Gagal dalam mendapatkan hasil panen." });
     }
 };

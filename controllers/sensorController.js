@@ -11,7 +11,7 @@ const getDailySensorData = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error('Database query error:', error);
-        res.status(500).json({ error: 'Error fetching daily sensor data' });
+        res.status(500).json({ error: 'Gagal mendapatkan data harian' });
     }
 };
 
@@ -26,7 +26,7 @@ const getMonthlySensorData = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error('Database query error:', error);
-        res.status(500).json({ error: 'Error fetching monthly sensor data' });
+        res.status(500).json({ error: 'Gagal mendapatkan data bulanan' });
     }
 };
 

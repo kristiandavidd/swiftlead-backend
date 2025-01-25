@@ -6,7 +6,7 @@ const addSwiftletHouse = async (req, res) => {
         const { userId, name, location } = req.body;
 
         if (!userId || !name || !location) {
-            return res.status(400).json({ message: "All fields are required." });
+            return res.status(400).json({ message: "Semua bagian harus diisi." });
         }
 
         // Generate UUID
@@ -17,10 +17,10 @@ const addSwiftletHouse = async (req, res) => {
             [houseId, userId, name, location]
         );
 
-        res.status(201).json({ message: "Swiftlet house added successfully.", houseId });
+        res.status(201).json({ message: "Kandang burung walet berhasil ditambahkan.", houseId });
     } catch (error) {
         console.error("Error adding swiftlet house:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 };
 
@@ -31,7 +31,7 @@ const requestInstallation = async (req, res) => {
 
         // Validasi input
         if (!swiftletHouseId || !floors || !sensorCount || !appointment_date) {
-            return res.status(400).json({ message: "All fields are required." });
+            return res.status(400).json({ message: "Semua bagian harus diisi." });
         }
 
         // Masukkan data ke tabel `installation_requests`
@@ -42,12 +42,12 @@ const requestInstallation = async (req, res) => {
         );
 
         res.status(201).json({
-            message: "Installation request submitted successfully.",
+            message: "Pengajuan instalasi berhasil dibuat.",
             requestId: result.insertId,
         });
     } catch (error) {
         console.error("Error submitting installation request:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 };
 
@@ -64,7 +64,7 @@ const getAllInstallation = async (req, res) => {
         res.status(200).json(results);
     } catch (error) {
         console.error("Error getting installation requests:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 }
 
@@ -82,7 +82,7 @@ const getAllUninstallation = async (req, res) => {
         res.status(200).json(results);
     } catch (error) {
         console.error("Error getting uninstallation requests:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 }
 
@@ -100,7 +100,7 @@ const getAllMaintenance = async (req, res) => {
         res.status(200).json(results);
     } catch (error) {
         console.error("Error getting maintenance requests:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 }
 
@@ -118,13 +118,13 @@ const getInstallationById = async (req, res) => {
         );
 
         if (results.length === 0) {
-            return res.status(404).json({ message: "Installation request not found." });
+            return res.status(404).json({ message: "Pengajuan instalasi tidak ditemukan." });
         }
 
         res.status(200).json(results[0]);
     } catch (error) {
         console.error("Error getting installation request by ID:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 }
 
@@ -144,14 +144,14 @@ const getMaintenanceById = async (req, res) => {
         );
 
         if (results.length === 0) {
-            return res.status(404).json({ message: "Maintenance request not found." });
+            return res.status(404).json({ message: "Pengajuan pemeliharaan tidak ditemukan." });
         }
 
         res.status(200).json(results[0]);
     } catch (error) {
 
         console.error("Error getting maintenance request by ID:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 }
 
@@ -170,13 +170,13 @@ const getUninstallationById = async (req, res) => {
         );
 
         if (results.length === 0) {
-            return res.status(404).json({ message: "Uninstallation request not found." });
+            return res.status(404).json({ message: "Pengajuan uninstalasi tidak ditemukan." });
         }
 
         res.status(200).json(results[0]);
     } catch (error) {
         console.error("Error getting uninstallation request by ID:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 }
 
@@ -187,16 +187,16 @@ const updateInstallationStatus = async (req, res) => {
 
         // Validasi nilai status
         if (![0, 1, 2, 3, 4, 5, 6].includes(status)) {
-            return res.status(400).json({ message: "Invalid status value." });
+            return res.status(400).json({ message: "Status tidak valid." });
         }
 
         // Update status pengajuan instalasi
         await db.query("UPDATE installation_requests SET status = ? WHERE id = ?", [status, id]);
 
-        res.json({ message: "Installation request status updated successfully." });
+        res.json({ message: "Status pengajuan instalasi berhasil diperbarui." });
     } catch (error) {
         console.error("Error updating installation request status:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 }
 
@@ -207,16 +207,16 @@ const updateMaintenanceStatus = async (req, res) => {
 
         // Validasi nilai status
         if (![0, 1, 2, 3, 4, 5, 6].includes(status)) {
-            return res.status(400).json({ message: "Invalid status value." });
+            return res.status(400).json({ message: "Status tidak valid." });
         }
 
         // Update status pengajuan maintenance
         await db.query("UPDATE maintenance_requests SET status = ? WHERE id = ?", [status, id]);
 
-        res.json({ message: "Maintenance request status updated successfully." });
+        res.json({ message: "Status pengajuan pemeliharaan berhasil diperbarui." });
     } catch (error) {
         console.error("Error updating maintenance request status:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 }
 
@@ -227,16 +227,16 @@ const updateUninstallationStatus = async (req, res) => {
 
         // Validasi nilai status
         if (![0, 1, 2, 3, 4, 5, 6].includes(status)) {
-            return res.status(400).json({ message: "Invalid status value." });
+            return res.status(400).json({ message: "Status tidak valid." });
         }
 
         // Update status pengajuan uninstallation
         await db.query("UPDATE uninstallation_requests SET status = ? WHERE id = ?", [status, id]);
 
-        res.json({ message: "Uninstallation request status updated successfully." });
+        res.json({ message: "Status pengajuan uninstalasi berhasil diperbarui." });
     } catch (error) {
         console.error("Error updating uninstallation request status:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 }
 
@@ -245,7 +245,7 @@ const requestMaintenance = async (req, res) => {
         const { id_device, reason, appointment_date } = req.body;
 
         if (!id_device || !reason || !appointment_date) {
-            return res.status(400).json({ message: "All fields are required." });
+            return res.status(400).json({ message: "Semua bagian harus diisi." });
         }
 
         const [result] = await db.query(
@@ -255,22 +255,21 @@ const requestMaintenance = async (req, res) => {
         );
 
         res.status(201).json({
-            message: "Maintenance request submitted successfully.",
+            message: "Pengajuan pemeliharaan berhasil dibuat.",
             requestId: result.insertId,
         });
     } catch (error) {
         console.error("Error submitting maintenance request:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 };
 
 const requestUninstallation = async (req, res) => {
-    console.log("asdadas")
     try {
         const { id_device, reason, appointment_date } = req.body;
 
         if (!id_device || !reason || !appointment_date) {
-            return res.status(400).json({ message: "All fields are required." });
+            return res.status(400).json({ message: "Semua bagian harus diisi." });
         }
 
         const [result] = await db.query(
@@ -280,12 +279,12 @@ const requestUninstallation = async (req, res) => {
         );
 
         res.status(201).json({
-            message: "Uninstallation request submitted successfully.",
+            message: "Pengajuan uninstalasi berhasil dibuat.",
             requestId: result.insertId,
         });
     } catch (error) {
         console.error("Error submitting uninstallation request:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 };
 
@@ -294,7 +293,7 @@ const getTrackingData = async (req, res) => {
         const { userId } = req.params;
 
         if (!userId) {
-            return res.status(400).json({ message: "User ID is required." });
+            return res.status(400).json({ message: "ID pengguna dibutuhkan." });
         }
 
         const installationQuery = `
@@ -362,19 +361,18 @@ const getTrackingData = async (req, res) => {
         res.json(trackingData);
     } catch (error) {
         console.error("Error fetching tracking data:", error);
-        res.status(500).json({ message: "Failed to fetch tracking data." });
+        res.status(500).json({ message: "Gagal mendapatkan data perkembangan." });
     }
 };
 
 const cancelRequest = async (req, res) => {
     const { id } = req.params; // The request ID
     const { type } = req.body; // The type (installation, maintenance, uninstallation)
-    console.log("cancelRequest")
 
     // Validate type
     const validTypes = ["installation", "maintenance", "uninstallation"];
     if (!validTypes.includes(type)) {
-        return res.status(400).json({ message: "Invalid request type." });
+        return res.status(400).json({ message: "Pengajuan tidak valid." });
     }
 
     try {
@@ -393,14 +391,14 @@ const cancelRequest = async (req, res) => {
         const [currentRequest] = await db.query(`SELECT id, status FROM ${tableName} WHERE id = ?`, [id]);
 
         if (currentRequest.length === 0) {
-            return res.status(404).json({ message: "Request not found." });
+            return res.status(404).json({ message: "Pengajuan tidak ditemukan." });
         }
 
         const { status } = currentRequest[0];
 
         // Only allow cancellation for statuses 0 (Pending) or 1 (Checking)
         if (status !== 0 && status !== 1 && status !== 6) {
-            return res.status(400).json({ message: "Cancellation not allowed for this status." });
+            return res.status(400).json({ message: "Pembatalan tidak bisa dilakukan." });
         }
 
         // Update the status to "Cancelled" (4)
@@ -408,14 +406,14 @@ const cancelRequest = async (req, res) => {
 
         if (result.affectedRows === 0) {
             return res.status(400).json({
-                message: "Cancellation failed. Request might already be processed.",
+                message: "Pembatalan tidak bisa dilakukan.",
             });
         }
 
-        res.status(200).json({ message: "Request cancelled successfully." });
+        res.status(200).json({ message: "Berhasil membatalkan pengajuan." });
     } catch (error) {
         console.error("Error cancelling request:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 };
 
@@ -424,7 +422,7 @@ const rescheduleRequest = async (req, res) => {
         const { id, type, appointment_date } = req.body;
 
         if (!id || !type || !appointment_date) {
-            return res.status(400).json({ message: "ID, type, and appointment_date are required." });
+            return res.status(400).json({ message: "Semua bagian harus diisi." });
         }
 
         let table;
@@ -435,20 +433,20 @@ const rescheduleRequest = async (req, res) => {
         } else if (type === "uninstallation") {
             table = "uninstallation_requests";
         } else {
-            return res.status(400).json({ message: "Invalid request type." });
+            return res.status(400).json({ message: "Pengajuan tidak valid." });
         }
 
         const query = `UPDATE ${table} SET appointment_date = ?, status = 0 WHERE id = ?`;
         const [result] = await db.query(query, [appointment_date, id]);
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Request not found or no changes made." });
+            return res.status(404).json({ message: "Pengajuan tidak ditemukan." });
         }
 
-        res.status(200).json({ message: "Request rescheduled successfully." });
+        res.status(200).json({ message: "Berhasil menjadwalkan ulang pengajuan." });
     } catch (error) {
         console.error("Error rescheduling request:", error);
-        res.status(500).json({ message: "Failed to reschedule request." });
+        res.status(500).json({ message: "Gagal menjadwalkan ulang pengajuan." });
     }
 };
 

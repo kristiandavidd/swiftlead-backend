@@ -6,7 +6,7 @@ const getDeviceData = async (req, res) => {
 
 
     if (!userId) {
-        return res.status(400).json({ error: 'User ID is required' });
+        return res.status(400).json({ error: 'ID pengguna dibutuhkan.' });
     }
 
     try {
@@ -46,12 +46,10 @@ const getDeviceData = async (req, res) => {
             return acc;
         }, {});
 
-
-
         res.json(result);
     } catch (error) {
         console.error('Error fetching device data:', error);
-        res.status(500).json({ error: 'Failed to fetch data' });
+        res.status(500).json({ error: 'Gagal mendapatkan data.' });
     }
 };
 
@@ -59,10 +57,8 @@ const getDeviceDataByDeviceId = async (req, res) => {
     try {
         const { id } = req.params;
 
-        console.log("Fetching device by ID:", id);
-
         if (!id) {
-            return res.status(400).json({ message: "Device ID is required." });
+            return res.status(400).json({ message: "ID Perangkat dibutuhkan." });
         }
 
         const [device] = await db.query(
@@ -82,13 +78,13 @@ const getDeviceDataByDeviceId = async (req, res) => {
         );
 
         if (!device.length) {
-            return res.status(404).json({ message: "Device not found." });
+            return res.status(404).json({ message: "Perangkat tidak ditemukan." });
         }
 
         res.status(200).json(device[0]);
     } catch (error) {
         console.error("Error fetching device by ID:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 };
 
@@ -105,7 +101,7 @@ const getAllDevices = async (req, res) => {
         res.json(devices);
     } catch (error) {
         console.error('Error fetching devices:', error);
-        res.status(500).json({ error: 'Failed to fetch devices' });
+        res.status(500).json({ error: 'Gagal mendapatkan perangkat.' });
     }
 }
 
@@ -131,10 +127,9 @@ const getAllDevices = async (req, res) => {
 let retryCount = 0;
 
 const generateCode = async (req, res) => {
-    console.log("Generating install code...");
     try {
         if (retryCount > 5) {
-            throw new Error("Maximum retries reached for generating install code");
+            throw new Error("Percobaan maksimum untuk menghasilkan kode instalasi telah dicapai.");
         }
 
         const prefix = "032";
@@ -142,21 +137,17 @@ const generateCode = async (req, res) => {
         const uniqueCode = Math.floor(Math.random() * 9000 + 1000).toString();
         const installCode = `${prefix}-${floorCode}-${uniqueCode}`;
 
-        console.log("Generated install code:", installCode);
         const [existing] = await db.query("SELECT * FROM iot_device WHERE install_code = ?", [installCode]);
 
         if (existing.length > 0) {
             retryCount++;
-            console.log(`Retry ${retryCount}: Install code already exists, generating a new one...`);
             return generateInstallCode(req, res);
         }
-
-        console.log("Install code is unique:", installCode);
 
         res.json({ install_code: installCode });
     } catch (error) {
         console.error("Error generating install code:", error);
-        res.status(500).json({ error: "Failed to generate install code" });
+        res.status(500).json({ error: "Gagal menghasilkan kode instalasi." });
     }
 };
 
@@ -166,7 +157,7 @@ const addDevice = async (req, res) => {
         const { id_swiftlet_house, floor, install_code, status } = req.body;
 
         if (!id_swiftlet_house || !floor || !install_code || status === undefined) {
-            return res.status(400).json({ error: "All fields are required" });
+            return res.status(400).json({ error: "Semua bagian harus diisi." });
         }
 
         const [result] = await db.query(
@@ -175,10 +166,10 @@ const addDevice = async (req, res) => {
             [id_swiftlet_house, floor, install_code, status]
         );
 
-        res.status(201).json({ message: "Device added successfully", deviceId: result.insertId });
+        res.status(201).json({ message: "Perangkat berhasil ditambahkan", deviceId: result.insertId });
     } catch (error) {
         console.error("Error adding device:", error);
-        res.status(500).json({ error: "Failed to add device" });
+        res.status(500).json({ error: "Gagal dalam menambahkan perangkat." });
     }
 };
 
@@ -188,14 +179,14 @@ const updateStatusDevice = async (req, res) => {
         const { status } = req.body;
 
         if (status === undefined) {
-            return res.status(400).json({ error: "Status is required" });
+            return res.status(400).json({ error: "Status diperlukan." });
         }
 
         await db.query(`UPDATE iot_device SET status = ? WHERE id = ?`, [status, deviceId]);
         res.json({ message: "Device status updated successfully" });
     } catch (error) {
         console.error("Error updating device status:", error);
-        res.status(500).json({ error: "Failed to update device status" });
+        res.status(500).json({ error: "Gagal dalam memperbarui status perangkat." });
     }
 };
 
@@ -232,7 +223,7 @@ const getUserHousesAndDevices = async (req, res) => {
         res.json(result);
     } catch (error) {
         console.error("Error fetching houses and devices:", error);
-        res.status(500).json({ error: "Failed to fetch houses and devices." });
+        res.status(500).json({ error: "Gagal dalam mendapatkan data kandang dan perangkat." });
     }
 };
 
@@ -242,14 +233,14 @@ const deleteHouse = async (req, res) => {
     try {
         const [devices] = await db.query(`SELECT COUNT(*) AS count FROM iot_device WHERE id_swiftlet_house = ?`, [houseId]);
         if (devices[0].count > 0) {
-            return res.status(400).json({ error: "Cannot delete house with active devices." });
+            return res.status(400).json({ error: "Tidak bisa menghapus kandang dengan perangkat terpasang." });
         }
 
         await db.query(`DELETE FROM swiftlet_house WHERE id = ?`, [houseId]);
-        res.json({ message: "House deleted successfully." });
+        res.json({ message: "Berhasil menghapus kandang." });
     } catch (error) {
         console.error("Error deleting house:", error);
-        res.status(500).json({ error: "Failed to delete house." });
+        res.status(500).json({ error: "Gagal dalam menghapus kandang." });
     }
 };
 
@@ -258,10 +249,10 @@ const editHouse = async (req, res) => {
     const { name, location } = req.body;
     try {
         await db.query(`UPDATE swiftlet_house SET name = ?, location = ? WHERE id = ?`, [name, location, houseId]);
-        res.json({ message: "House updated successfully." });
+        res.json({ message: "Kandang berhasil diperbarui." });
     } catch (error) {
         console.error("Error updating house:", error);
-        res.status(500).json({ error: "Failed to update house." });
+        res.status(500).json({ error: "Gagal dalam memperbarui kandang." });
     }
 }
 
@@ -269,14 +260,12 @@ const deleteDevice = async (req, res) => {
     const { deviceId } = req.params;
     try {
         await db.query(`DELETE FROM iot_device WHERE id = ?`, [deviceId]);
-        res.json({ message: "Device deleted successfully." });
+        res.json({ message: "Perangkat berhasil dihapus." });
     } catch (error) {
         console.error("Error deleting device:", error);
-        res.status(500).json({ error: "Failed to delete device." });
+        res.status(500).json({ error: "Gagal dalam menghapus perangkat." });
     }
 };
-
-// controllers/deviceController.js
 
 const updateDevice = async (req, res) => {
     try {
@@ -284,7 +273,7 @@ const updateDevice = async (req, res) => {
         const { floor, status, created_at, updated_at } = req.body;
 
         if (!id || !floor || status === undefined || !created_at || !updated_at) {
-            return res.status(400).json({ message: "All fields are required." });
+            return res.status(400).json({ message: "Semua bagian harus diisi." });
         }
 
         // Update device di database
@@ -296,13 +285,13 @@ const updateDevice = async (req, res) => {
         );
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Device not found." });
+            return res.status(404).json({ message: "Perangkat tidak ditemukan." });
         }
 
-        res.status(200).json({ message: "Device updated successfully." });
+        res.status(200).json({ message: "Perangkat berhasil diperbarui." });
     } catch (error) {
         console.error("Error updating device:", error);
-        res.status(500).json({ message: "Internal server error." });
+        res.status(500).json({ message: "Peladen mengalami galat." });
     }
 };
 

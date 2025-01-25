@@ -116,11 +116,10 @@ exports.getMembershipById = async (req, res) => {
 
 exports.getMembershipStatusById = async (req, res) => {
     const { id } = req.params;
-    console.log(id);
 
     try {
         const [result] = await db.query(
-            `SELECT status, join_date, exp_date 
+            `SELECT id, status, join_date, exp_date, order_id
              FROM membership 
              WHERE id_user = ? 
                AND status = 1 
@@ -129,12 +128,13 @@ exports.getMembershipStatusById = async (req, res) => {
         );
 
         if (result.length === 0) {
-            return res.status(200).json({ isActive: false });
+            return res.status(200).json({ isActive: false, membership: null });
         }
 
-        res.status(200).json({ isActive: true });
+        const membership = result[0];
+        res.status(200).json({ isActive: true, membership });
     } catch (error) {
-        console.error('Error fetching membership status:', error);
-        res.status(500).json({ error: 'Failed to fetch membership status' });
+        console.error("Error fetching membership status:", error);
+        res.status(500).json({ error: "Failed to fetch membership status" });
     }
 };

@@ -17,7 +17,7 @@ const register = async (req, res) => {
     try {
         const [result] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
         if (result.length > 0) {
-            return res.status(400).json({ message: 'Email already exists' });
+            return res.status(400).json({ message: 'Email sudah terdaftar.' });
         }
 
         const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -48,7 +48,7 @@ const register = async (req, res) => {
         );
 
         res.status(201).json({
-            message: 'User registered successfully!',
+            message: 'Pendaftaran pengguna berhasil!',
             token,
             user: {
                 id: newUser.id,
@@ -62,7 +62,7 @@ const register = async (req, res) => {
         });
     } catch (error) {
         console.error('Database query error:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Peladen mengalami galat.' });
     }
 };
 
@@ -80,7 +80,7 @@ const login = async (req, res) => {
         const [result] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
 
         if (result.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'Pengguna tidak ditemukan.' });
         }
 
         const user = result[0];
@@ -88,7 +88,7 @@ const login = async (req, res) => {
         // Cek status user (-1 = inactive)
         if (user.status === -1) {
             return res.status(403).json({
-                message: 'Your account is inactive. Please contact support to activate your account.',
+                message: 'Akun anda tidak aktif. Hubungi admin untuk mengaktifkannya.',
             });
         }
 
@@ -96,7 +96,7 @@ const login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(401).json({ message: 'Incorrect password' });
+            return res.status(401).json({ message: 'Password salah' });
         }
 
         // Buat token JWT
@@ -116,7 +116,7 @@ const login = async (req, res) => {
 
         // Kirim respons sukses
         res.status(200).json({
-            message: 'Login successful',
+            message: 'Berhasil masuk.',
             token,
             user: {
                 id: user.id,
@@ -130,12 +130,12 @@ const login = async (req, res) => {
         });
     } catch (err) {
         console.error('Database query error:', err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Peladen mengalami galat.' });
     }
 };
 
 const logout = (req, res) => {
-    res.status(200).json({ message: 'Logout successful' });
+    res.status(200).json({ message: 'Berhasil keluar.' });
 };
 
 module.exports = { register, login, logout };

@@ -28,10 +28,10 @@ exports.addEbook = async (req, res) => {
             thumbnailPath,
         ]);
 
-        res.status(201).json({ message: 'Ebook added successfully.' });
+        res.status(201).json({ message: 'E-book berhasil ditambahkan.' });
     } catch (error) {
         console.error('Error adding ebook:', error);
-        res.status(500).json({ message: 'Failed to add ebook.' });
+        res.status(500).json({ message: 'Gagal dalam menambahkan E-Book.' });
     }
 };
 
@@ -43,7 +43,7 @@ exports.updateEbook = async (req, res) => {
 
     try {
         const [ebook] = await db.query('SELECT * FROM ebooks WHERE id = ?', [id]);
-        if (!ebook.length) return res.status(404).json({ message: 'Ebook not found.' });
+        if (!ebook.length) return res.status(404).json({ message: 'E-Book tidak ditemukan.' });
 
         const updateFields = {
             title,
@@ -71,10 +71,10 @@ exports.updateEbook = async (req, res) => {
             [updateFields.title, updateFields.file_path, updateFields.thumbnail_path, id]
         );
 
-        res.json({ message: 'Ebook updated successfully.' });
+        res.json({ message: 'E-Book berhasil diperbarui.' });
     } catch (error) {
         console.error('Error updating ebook:', error);
-        res.status(500).json({ message: 'Failed to update ebook.' });
+        res.status(500).json({ message: 'Gagal dalam memperbarui E-Book.' });
     }
 };
 
@@ -84,7 +84,7 @@ exports.deleteEbook = async (req, res) => {
 
     try {
         const [ebook] = await db.query('SELECT * FROM ebooks WHERE id = ?', [id]);
-        if (!ebook.length) return res.status(404).json({ message: 'Ebook not found.' });
+        if (!ebook.length) return res.status(404).json({ message: 'E-Book tidak ditemukan.' });
 
         // Hapus file dan thumbnail dari server
         fs.unlinkSync(`.${ebook[0].file_path}`);
@@ -93,9 +93,9 @@ exports.deleteEbook = async (req, res) => {
         // Hapus dari database
         await db.query('DELETE FROM ebooks WHERE id = ?', [id]);
 
-        res.json({ message: 'Ebook deleted successfully.' });
+        res.json({ message: 'Berhasil menghapus E-Book.' });
     } catch (error) {
         console.error('Error deleting ebook:', error);
-        res.status(500).json({ message: 'Failed to delete ebook.' });
+        res.status(500).json({ message: 'Gagal dalam menghapus E-Book.' });
     }
 };
