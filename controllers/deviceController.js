@@ -256,6 +256,22 @@ const editHouse = async (req, res) => {
     }
 }
 
+// get house by id
+const getHouseById = async (req, res) => {
+    const { houseId } = req.params;
+
+    try {
+        const [house] = await db.query(`SELECT * FROM swiftlet_house WHERE id = ?`, [houseId]);
+        if (!house.length) {
+            return res.status(404).json({ error: "Kandang tidak ditemukan." });
+        }
+        res.json(house[0]);
+    } catch (error) {
+        console.error("Error fetching house:", error);
+        res.status(500).json({ error: "Gagal dalam mengambil kandang." });
+    }
+};
+
 const deleteDevice = async (req, res) => {
     const { deviceId } = req.params;
     try {
@@ -304,6 +320,7 @@ module.exports = {
     deleteHouse,
     getUserHousesAndDevices,
     editHouse,
+    getHouseById,
     updateDevice,
     updateStatusDevice,
     deleteDevice,

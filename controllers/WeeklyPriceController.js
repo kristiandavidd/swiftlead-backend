@@ -96,5 +96,30 @@ exports.getWeeklyPrices = async (req, res) => {
     }
 };
 
+exports.getWeeklyAveragePrice = async (req, res) => {
+    const today = moment().format('YYYY-MM-DD'); // Ambil tanggal hari ini
+
+    try {
+        // Query untuk mengambil semua harga minggu ini
+        const [result] = await db.query(`
+            SELECT price 
+            FROM weekly_birdnest_prices 
+            WHERE ? BETWEEN week_start AND week_end
+        `, [today]);
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'Tidak ada data harga untuk minggu ini.' });
+        }
+
+        // Menghitung rata-rata harga
+        const totalPrice = result.reduce((total, row) => total + parseFloat(row.price), 0);
+        const averagePrice = totalPrice / result.length;
+
+        res.json({ averagePrice: averagePrice.toFixed(2) }); // Kembalikan rata-rata dengan 2 angka desimal
+    } catch (error) {
+        console.error('Error fetching weekly prices:', error);
+        res.status(500).json({ error: 'Gagal mendapatkan data harga mingguan.' });
+    }
+};
 
 

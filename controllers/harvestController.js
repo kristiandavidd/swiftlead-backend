@@ -1,34 +1,68 @@
 const db = require("../config/db");
+const mysql = require("mysql2/promise");
 
 exports.addHarvest = async (req, res) => {
-    const { user_id, floors } = req.body;
-
     try {
-        const harvestInsertPromises = floors.map((floor) =>
-            db.query(
-                `INSERT INTO harvests (user_id, floor, bowl, oval, corner, broken, ideal_bowl, ideal_oval, ideal_corner, ideal_broken) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    user_id,
-                    floors.indexOf(floor) + 1,
-                    floor.bowl,
-                    floor.oval,
-                    floor.corner,
-                    floor.broken,
-                    floor.ideal_bowl,
-                    floor.ideal_oval,
-                    floor.ideal_corner,
-                    floor.ideal_broken,
-                ]
-            )
-        );
-        await Promise.all(harvestInsertPromises);
+        const { userId, swiftletHouseId, postHarvestData } = req.body; // Data yang diterima dari frontend
+        console.log(userId, swiftletHouseId, postHarvestData);
 
-        res.status(201).json({ message: "Hasil panen berhasil ditambahkan" });
+        // Cek apakah data yang diperlukan ada
+        if (!userId || !swiftletHouseId || !Array.isArray(postHarvestData) || postHarvestData.length === 0) {
+            return res.status(400).json({ message: 'Data tidak lengkap atau tidak valid.' });
+        }
+
+        // Looping untuk menyimpan data per lantai
+        for (let i = 0; i < postHarvestData.length; i++) {
+            const floor = i + 1; // Lantai dimulai dari 1
+            const {
+                bowl: { weight: bowlWeight, pieces: bowlPieces },
+                oval: { weight: ovalWeight, pieces: ovalPieces },
+                corner: { weight: cornerWeight, pieces: cornerPieces },
+                fracture: { weight: brokenWeight, pieces: brokenPieces }
+            } = postHarvestData[i];
+
+            // Eksekusi query untuk menyimpan data
+            await db.query(
+                `INSERT INTO harvests (
+                    user_id,
+                    swiftlet_house_id,
+                    floor,
+                    bowl,
+                    bowl_pieces,
+                    oval,
+                    oval_pieces,
+                    corner,
+                    corner_pieces,
+                    broken,
+                    broken_pieces
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    userId,
+                    swiftletHouseId,
+                    floor,
+                    bowlWeight,
+                    bowlPieces,
+                    ovalWeight,
+                    ovalPieces,
+                    cornerWeight,
+                    cornerPieces,
+                    brokenWeight,
+                    brokenPieces
+                ]
+            );
+        }
+
+        res.status(201).json({
+            message: 'Data panen berhasil disimpan.',
+        });
     } catch (error) {
-        console.error("Error adding harvest:", error);
-        res.status(500).json({ error: "Gagal dalam menambahkan hasil panen." });
+        console.error('Error saving harvest data:', error);
+        res.status(500).json({ message: 'Terjadi kesalahan saat menyimpan data panen.' });
     }
 };
+
+
+
 
 exports.getHarvests = async (req, res) => {
     const { user_id } = req.params;

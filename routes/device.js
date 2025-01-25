@@ -10,7 +10,8 @@ const {
     deleteHouse,
     editHouse,
     updateDevice,
-    getDeviceDataByDeviceId
+    getDeviceDataByDeviceId,
+    getHouseById
 } = require('../controllers/deviceController');
 const router = express.Router();
 
@@ -24,7 +25,8 @@ router.put("/update/:id", updateDevice);
 router.get("/", getAllDevices);
 
 router.post("/", addDevice);
-router.get("/house/:userId", getUserHousesAndDevices);
+router.get("/houses/:userId", getUserHousesAndDevices);
+router.get("/house/:houseId", getHouseById);
 router.delete("/house/:houseId", deleteHouse);
 router.put("/house/:houseId", editHouse);
 
