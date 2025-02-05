@@ -370,7 +370,7 @@ const cancelRequest = async (req, res) => {
     const { type } = req.body; // The type (installation, maintenance, uninstallation)
 
     // Validate type
-    const validTypes = ["installation", "maintenance", "uninstallation"];
+    const validTypes = ["instalasi", "pemeliharaan", "uninstalasi"];
     if (!validTypes.includes(type)) {
         return res.status(400).json({ message: "Pengajuan tidak valid." });
     }
@@ -379,11 +379,11 @@ const cancelRequest = async (req, res) => {
         let tableName;
 
         // Determine the table name based on type
-        if (type === "installation") {
+        if (type === "instalasi") {
             tableName = "installation_requests";
-        } else if (type === "maintenance") {
+        } else if (type === "pemeliharaan") {
             tableName = "maintenance_requests";
-        } else if (type === "uninstallation") {
+        } else if (type === "uninstalasi") {
             tableName = "uninstallation_requests";
         }
 

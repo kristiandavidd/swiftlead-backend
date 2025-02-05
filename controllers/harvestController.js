@@ -62,14 +62,12 @@ exports.addHarvest = async (req, res) => {
 };
 
 
-
-
 exports.getHarvests = async (req, res) => {
     const { user_id } = req.params;
 
     try {
         const [result] = await db.query(
-            `SELECT * FROM harvests WHERE user_id = ? ORDER BY floor ASC`,
+            `SELECT * FROM harvests WHERE user_id = ? ORDER BY created_at DESC`,
             [user_id]
         );
         res.json(result);
