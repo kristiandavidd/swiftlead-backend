@@ -3,13 +3,12 @@ const multer = require('multer');
 const ebookController = require('../controllers/ebookController');
 const router = express.Router();
 
-// Konfigurasi Multer untuk file eBook
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         if (file.fieldname === 'ebookFile') {
-            cb(null, './uploads/ebooks'); // Folder untuk eBook
+            cb(null, './uploads/ebooks'); 
         } else if (file.fieldname === 'thumbnail') {
-            cb(null, './uploads/thumbnails'); // Folder untuk thumbnail
+            cb(null, './uploads/thumbnails'); 
         }
     },
     filename: (req, file, cb) => {
@@ -19,7 +18,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Routes
 router.get('/', ebookController.getEbooks);
 router.post('/', upload.fields([{ name: 'ebookFile' }, { name: 'thumbnail' }]), ebookController.addEbook);
 router.put('/:id', upload.fields([{ name: 'ebookFile' }, { name: 'thumbnail' }]), ebookController.updateEbook);

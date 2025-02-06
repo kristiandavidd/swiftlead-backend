@@ -15,7 +15,6 @@ const {
 } = require('../controllers/deviceController');
 const router = express.Router();
 
-// Route untuk mendapatkan data swiftlet house dan floor
 router.get("/generate-code", generateCode);
 router.get('/user/:userId', getDeviceData);
 router.get("/:id", getDeviceDataByDeviceId);

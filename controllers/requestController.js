@@ -9,7 +9,6 @@ const addSwiftletHouse = async (req, res) => {
             return res.status(400).json({ message: "Semua bagian harus diisi." });
         }
 
-        // Generate UUID
         const houseId = uuidv4();
 
         const [result] = await db.query(
@@ -24,21 +23,18 @@ const addSwiftletHouse = async (req, res) => {
     }
 };
 
-// Fungsi untuk menambahkan pengajuan instalasi
 const requestInstallation = async (req, res) => {
     try {
         const { swiftletHouseId, floors, sensorCount, appointment_date } = req.body;
 
-        // Validasi input
         if (!swiftletHouseId || !floors || !sensorCount || !appointment_date) {
             return res.status(400).json({ message: "Semua bagian harus diisi." });
         }
 
-        // Masukkan data ke tabel `installation_requests`
         const [result] = await db.query(
             `INSERT INTO installation_requests (id_swiftlet_house, floors, sensor_count, appointment_date, status)
             VALUES (?, ?, ?, ?, ?)`,
-            [swiftletHouseId, floors, sensorCount, appointment_date, 0] // Status default = 0 (pending)
+            [swiftletHouseId, floors, sensorCount, appointment_date, 0]
         );
 
         res.status(201).json({
@@ -185,12 +181,10 @@ const updateInstallationStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        // Validasi nilai status
         if (![0, 1, 2, 3, 4, 5, 6].includes(status)) {
             return res.status(400).json({ message: "Status tidak valid." });
         }
 
-        // Update status pengajuan instalasi
         await db.query("UPDATE installation_requests SET status = ? WHERE id = ?", [status, id]);
 
         res.json({ message: "Status pengajuan instalasi berhasil diperbarui." });
@@ -205,12 +199,10 @@ const updateMaintenanceStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        // Validasi nilai status
         if (![0, 1, 2, 3, 4, 5, 6].includes(status)) {
             return res.status(400).json({ message: "Status tidak valid." });
         }
 
-        // Update status pengajuan maintenance
         await db.query("UPDATE maintenance_requests SET status = ? WHERE id = ?", [status, id]);
 
         res.json({ message: "Status pengajuan pemeliharaan berhasil diperbarui." });
@@ -225,12 +217,10 @@ const updateUninstallationStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        // Validasi nilai status
         if (![0, 1, 2, 3, 4, 5, 6].includes(status)) {
             return res.status(400).json({ message: "Status tidak valid." });
         }
 
-        // Update status pengajuan uninstallation
         await db.query("UPDATE uninstallation_requests SET status = ? WHERE id = ?", [status, id]);
 
         res.json({ message: "Status pengajuan uninstalasi berhasil diperbarui." });
@@ -250,7 +240,7 @@ const requestMaintenance = async (req, res) => {
 
         const [result] = await db.query(
             `INSERT INTO maintenance_requests (id_device, reason, appointment_date, status)
-            VALUES (?, ?, ?, 0)`, // Status default = 0 (pending)
+            VALUES (?, ?, ?, 0)`,
             [id_device, reason, appointment_date]
         );
 
@@ -274,7 +264,7 @@ const requestUninstallation = async (req, res) => {
 
         const [result] = await db.query(
             `INSERT INTO uninstallation_requests (id_device, reason, appointment_date, status)
-            VALUES (?, ?, ?, 0)`, // Status default = 0 (pending)
+            VALUES (?, ?, ?, 0)`,
             [id_device, reason, appointment_date]
         );
 
@@ -356,7 +346,7 @@ const getTrackingData = async (req, res) => {
             ...installations,
             ...maintenances,
             ...uninstallations,
-        ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort by created_at descending
+        ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         res.json(trackingData);
     } catch (error) {
@@ -366,11 +356,10 @@ const getTrackingData = async (req, res) => {
 };
 
 const cancelRequest = async (req, res) => {
-    const { id } = req.params; // The request ID
-    const { type } = req.body; // The type (installation, maintenance, uninstallation)
+    const { id } = req.params;
+    const { type } = req.body;
 
-    // Validate type
-    const validTypes = ["instalasi", "pemeliharaan", "uninstalasi"];
+    const validTypes = ["installation", "maintenance", "uninstallation"];
     if (!validTypes.includes(type)) {
         return res.status(400).json({ message: "Pengajuan tidak valid." });
     }
@@ -378,16 +367,14 @@ const cancelRequest = async (req, res) => {
     try {
         let tableName;
 
-        // Determine the table name based on type
-        if (type === "instalasi") {
+        if (type === "installation") {
             tableName = "installation_requests";
-        } else if (type === "pemeliharaan") {
+        } else if (type === "maintenance") {
             tableName = "maintenance_requests";
-        } else if (type === "uninstalasi") {
+        } else if (type === "uninstallation") {
             tableName = "uninstallation_requests";
         }
 
-        // Check the current status of the request
         const [currentRequest] = await db.query(`SELECT id, status FROM ${tableName} WHERE id = ?`, [id]);
 
         if (currentRequest.length === 0) {
@@ -396,12 +383,10 @@ const cancelRequest = async (req, res) => {
 
         const { status } = currentRequest[0];
 
-        // Only allow cancellation for statuses 0 (Pending) or 1 (Checking)
         if (status !== 0 && status !== 1 && status !== 6) {
             return res.status(400).json({ message: "Pembatalan tidak bisa dilakukan." });
         }
 
-        // Update the status to "Cancelled" (4)
         const [result] = await db.query(`UPDATE ${tableName} SET status = 4 WHERE id = ?`, [id]);
 
         if (result.affectedRows === 0) {

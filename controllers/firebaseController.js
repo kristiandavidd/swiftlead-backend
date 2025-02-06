@@ -1,7 +1,7 @@
 const { saveAverageToDatabase } = require('../models/historicalDataModel');
 const { db } = require('../config/firebase');
 
-let dataBuffer = {}; // Buffer data per perangkat
+let dataBuffer = {}; 
 
 const listenFirebaseChanges = (io, socket, installCode) => {
     const devicePath = `/device/${installCode}`;
@@ -41,7 +41,7 @@ const saveDataAtInterval = () => {
             const avgKelembaban = buffer.reduce((sum, entry) => sum + entry.kelembaban, 0) / buffer.length;
 
             saveAverageToDatabase({
-                installCode,  // Pastikan installCode dikirim ke database
+                installCode, 
                 suhu: avgSuhu,
                 kelembaban: avgKelembaban,
                 timestamp
@@ -55,14 +55,14 @@ const saveDataAtInterval = () => {
                 console.error(`Error saving data for ${installCode}:`, error);
             });
 
-            dataBuffer[installCode] = []; // Reset buffer setelah penyimpanan
+            dataBuffer[installCode] = []; 
         }
     });
 };
 
 const startDataSavingInterval = () => {
     console.log('Starting global data saving interval...');
-    setInterval(saveDataAtInterval, 30000); // Simpan setiap 30 detik
+    setInterval(saveDataAtInterval, 1000 * 60 * 15); 
 };
 
 module.exports = { listenFirebaseChanges, startDataSavingInterval };

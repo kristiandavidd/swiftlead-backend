@@ -2,14 +2,12 @@ const midtransClient = require('midtrans-client');
 const db = require('../config/db');
 const axios = require('axios');
 
-// Konfigurasi Midtrans
 const coreApi = new midtransClient.CoreApi({
-    isProduction: false, // Ubah ke true jika di production
+    isProduction: false, 
     serverKey: process.env.MIDTRANS_SERVER_KEY,
     clientKey: process.env.MIDTRANS_CLIENT_KEY,
 });
 
-// Ambil transaksi berdasarkan order_id dari Midtrans
 exports.getTransactionById = async (req, res) => {
     const { orderId } = req.params;
     try {
@@ -21,14 +19,12 @@ exports.getTransactionById = async (req, res) => {
     }
 };
 
-// Simpan notifikasi webhook Midtrans ke database
 exports.handleWebhook = async (req, res) => {
     const notification = req.body;
 
     try {
         const { order_id, transaction_status, gross_amount, payment_type, transaction_time } = notification;
 
-        // Simpan transaksi ke database
         const sql = `
             INSERT INTO transactions (order_id, status, amount, payment_type, transaction_time)
             VALUES (?, ?, ?, ?, ?)
@@ -52,7 +48,6 @@ exports.handleWebhook = async (req, res) => {
     }
 };
 
-// Ambil semua transaksi dari database
 exports.getAllTransactions = async (req, res) => {
     try {
         const sql = 'SELECT * FROM transactions ORDER BY transaction_time DESC';
@@ -67,7 +62,6 @@ exports.getAllTransactions = async (req, res) => {
 
 const apiUrl = "https://api.sandbox.midtrans.com/v2";
 
-// Fungsi untuk mengambil data transaksi dari Midtrans
 exports.getTransactionStatus = async (req, res) => {
     const { order_id } = req.params;
 
@@ -88,7 +82,6 @@ exports.getTransactionStatus = async (req, res) => {
     }
 };
 
-// Fungsi untuk menyimpan transaksi dari webhook Midtrans
 exports.saveTransaction = async (req, res) => {
     try {
         const {
@@ -119,7 +112,6 @@ exports.saveTransaction = async (req, res) => {
     }
 };
 
-// Fungsi untuk mendapatkan daftar transaksi dari database
 exports.getAllTransactions = async (req, res) => {
     try {
         const [transactions] = await db.query("SELECT * FROM transactions ORDER BY transaction_time DESC");

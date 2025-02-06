@@ -1,6 +1,5 @@
 const db = require("../config/db");
 
-// controllers/deviceController.js
 const getDeviceData = async (req, res) => {
     const { userId } = req.params;
 
@@ -32,7 +31,6 @@ const getDeviceData = async (req, res) => {
                 };
             }
 
-            // Jika floor adalah NULL, jangan tambahkan ke daftar floors
             if (row.floor !== null) {
                 if (!acc[row.swiftletHouseId].floors[row.floor]) {
                     acc[row.swiftletHouseId].floors[row.floor] = [];
@@ -207,7 +205,6 @@ const getUserHousesAndDevices = async (req, res) => {
         const [houses] = await db.query(housesQuery, [userId]);
         const [devices] = await db.query(devicesQuery);
 
-        // Group devices by house
         const result = houses.map((house) => {
             const houseDevices = devices
                 .filter((device) => device.id_swiftlet_house === house.house_id)
@@ -227,7 +224,6 @@ const getUserHousesAndDevices = async (req, res) => {
     }
 };
 
-// Delete a swiftlet house
 const deleteHouse = async (req, res) => {
     const { houseId } = req.params;
     try {
@@ -256,7 +252,6 @@ const editHouse = async (req, res) => {
     }
 }
 
-// get house by id
 const getHouseById = async (req, res) => {
     const { houseId } = req.params;
 
@@ -292,7 +287,6 @@ const updateDevice = async (req, res) => {
             return res.status(400).json({ message: "Semua bagian harus diisi." });
         }
 
-        // Update device di database
         const [result] = await db.query(
             `UPDATE iot_device 
              SET floor = ?, status = ?, created_at = ?, updated_at = ?

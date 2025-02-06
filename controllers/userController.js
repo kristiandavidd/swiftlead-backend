@@ -15,28 +15,24 @@ const getAllUser = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
     try {
-        const userId = req.user.id; // Mendapatkan ID pengguna dari middleware autentikasi
+        const userId = req.user.id; 
         const { name, no_telp, location } = req.body;
 
-        // Membuat objek pembaruan dinamis
         const updates = {};
         if (name) updates.name = name;
         if (no_telp) updates.no_telp = no_telp;
         if (location) updates.location = location;
 
-        // Jika tidak ada data yang dikirimkan
         if (Object.keys(updates).length === 0) {
             return res.status(400).json({ message: 'Data pengguna sudah terbaru.' });
         }
 
-        // Update data di database
         const [result] = await db.query(
             'UPDATE users SET ? WHERE id = ?',
             [updates, userId]
         );
 
         if (result.affectedRows > 0) {
-            // Mengambil data pengguna terbaru
             const [updatedUser] = await db.query(
                 'SELECT id, name, no_telp, location, img_profile FROM users WHERE id = ?',
                 [userId]
@@ -70,18 +66,15 @@ const updateUserRole = async (req, res) => {
     }
 };
 
-// Update Membership User
 const updateUserStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    // Validasi status (hanya -1, 0, atau 1 yang diizinkan)
     if (![-1, 0, 1].includes(status)) {
         return res.status(400).json({ message: 'Status akun tidak valid.' });
     }
 
     try {
-        // Periksa apakah password user masih NULL
         const [user] = await db.query('SELECT password FROM users WHERE id = ?', [id]);
 
         if (user.length === 0) {
@@ -94,10 +87,8 @@ const updateUserStatus = async (req, res) => {
             });
         }
 
-        // Lakukan pembaruan status jika validasi lolos
         await db.query('UPDATE users SET status = ? WHERE id = ?', [status, id]);
 
-        // Jika status diubah menjadi -1, perbarui status membership menjadi suspended (2)
         if (status === -1) {
             await db.query(
                 `UPDATE membership SET status = 2 WHERE id_user = ?`,
@@ -132,7 +123,6 @@ const createUser = async (req, res) => {
     }
 };
 
-// 📝 Update User
 const updateUser = async (req, res) => {
     const { id } = req.params;
     const { name, email, no_telp, location, role, status } = req.body;
@@ -143,7 +133,6 @@ const updateUser = async (req, res) => {
             [name, email, no_telp, location, role || 0, status || 0, id]
         );
 
-        // Jika status diubah menjadi -1, perbarui membership menjadi suspended (2)
         if (status === -1) {
             await db.query(
                 `UPDATE membership SET status = 2 WHERE id_user = ?`,
@@ -159,15 +148,12 @@ const updateUser = async (req, res) => {
 };
 
 
-// 🗑️ Delete User
 const deleteUser = async (req, res) => {
     const { id } = req.params;
 
     try {
-        // Hapus membership terlebih dahulu untuk mencegah pelanggaran FK (foreign key)
         await db.query(`DELETE FROM membership WHERE id_user = ?`, [id]);
 
-        // Hapus user
         await db.query(`DELETE FROM users WHERE id = ?`, [id]);
 
         res.json({ message: 'Pengguna berhasil dihapus.' });

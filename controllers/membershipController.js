@@ -1,6 +1,5 @@
 const db = require('../config/db');
 
-// Ambil data membership
 exports.getMemberships = async (req, res) => {
     try {
         const [result] = await db.query(`
@@ -14,8 +13,6 @@ exports.getMemberships = async (req, res) => {
     }
 };
 
-// Ambil user yang memenuhi syarat untuk membership
-// Ambil daftar pengguna yang memenuhi syarat untuk membership
 exports.getEligibleUsers = async (req, res) => {
     try {
         const [result] = await db.query(`
@@ -32,11 +29,9 @@ exports.getEligibleUsers = async (req, res) => {
     }
 };
 
-// Tambahkan pengguna ke membership
 exports.addMembership = async (req, res) => {
     const { user_id, start_date, end_date } = req.body;
     try {
-        // Periksa apakah user_id sudah ada di membership
         const [existing] = await db.query(`
             SELECT id_user FROM membership WHERE id_user = ?
         `, [user_id]);
@@ -45,7 +40,6 @@ exports.addMembership = async (req, res) => {
             return res.status(400).json({ message: "User is already a member." });
         }
 
-        // Tambahkan user ke membership jika belum ada
         await db.query(`
             INSERT INTO membership (id_user, join_date, exp_date, status) 
             VALUES (?, ?, ?, ?)
@@ -74,7 +68,6 @@ exports.updateMembership = async (req, res) => {
     const { join_date, exp_date, status } = req.body;
 
     try {
-        // Validasi status
         if (![0, 1, 2].includes(parseInt(status))) {
             return res.status(400).json({ message: 'Invalid status value' });
         }

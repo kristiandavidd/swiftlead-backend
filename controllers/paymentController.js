@@ -2,7 +2,6 @@ const midtransClient = require('midtrans-client');
 const db = require('../config/db');
 const moment = require('moment');
 
-// Konfigurasi Midtrans
 const snap = new midtransClient.Snap({
     isProduction: false,
     serverKey: process.env.MIDTRANS_SERVER_KEY,
@@ -16,7 +15,6 @@ exports.createMembershipPayment = async (req, res) => {
     try {
         const orderId = `MEM-${Date.now()}`;
 
-        // Hitung tanggal mulai dan berakhir
         const startDate = moment().format('YYYY-MM-DD');
         const endDate = moment().add(duration, 'months').format('YYYY-MM-DD');
 
@@ -36,10 +34,9 @@ exports.createMembershipPayment = async (req, res) => {
 
         const transaction = await snap.createTransaction(transactionParams);
 
-        // Simpan transaksi di database
         await db.query(
             `INSERT INTO membership (id_user, order_id, join_date, exp_date, status) VALUES (?, ?, ?, ?, ?)`,
-            [user_id, orderId, startDate, endDate, 1] // Status 0: Pending
+            [user_id, orderId, startDate, endDate, 1] 
         );
 
         res.status(200).json({
@@ -52,8 +49,6 @@ exports.createMembershipPayment = async (req, res) => {
     }
 };
 
-// Webhook untuk menangani notifikasi pembayara
-
 exports.handlePaymentNotification = async (req, res) => {
     const notification = req.body;
 
@@ -65,13 +60,11 @@ exports.handlePaymentNotification = async (req, res) => {
         console.log("Midtrans Notification:", notification);
 
         if (transactionStatus === "capture" || transactionStatus === "settlement") {
-            // Update status membership menjadi aktif
             await db.query(
                 `UPDATE membership SET status = 1 WHERE order_id = ?`,
                 [orderId]
             );
         } else if (transactionStatus === "cancel" || transactionStatus === "deny" || transactionStatus === "expire") {
-            // Update status membership menjadi gagal
             await db.query(
                 `UPDATE membership SET status = -1 WHERE order_id = ?`,
                 [orderId]

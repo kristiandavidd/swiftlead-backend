@@ -1,8 +1,6 @@
 const db = require('../config/db');
 const path = require('path');
 
-// Tambah artikel
-// Create Article
 exports.createArticle = async (req, res) => {
     try {
         const { title, content, tags_id, status } = req.body;
@@ -18,7 +16,6 @@ exports.createArticle = async (req, res) => {
     }
 };
 
-// Update Article
 exports.updateArticle = async (req, res) => {
     try {
         const { id } = req.params;
@@ -44,8 +41,6 @@ exports.getAllTags = async (req, res) => {
     }
 }
 
-
-// Hapus artikel
 exports.deleteArticle = async (req, res) => {
     try {
         const { id } = req.params;
@@ -58,7 +53,6 @@ exports.deleteArticle = async (req, res) => {
     }
 };
 
-// Dapatkan semua artikel
 exports.getAllArticles = async (req, res) => {
     try {
         const sql = `
@@ -95,7 +89,6 @@ exports.getAllMembershipArticles = async (req, res) => {
     }
 }
 
-// Dapatkan artikel berdasarkan ID
 exports.getArticleById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -121,7 +114,6 @@ exports.updateArticleStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        // Validasi status (harus 0 atau 1)
         if (status !== 0 && status !== 1 && status !== 2) {
             return res.status(400).send({ message: 'Status tidak valid.' });
         }
@@ -136,7 +128,6 @@ exports.updateArticleStatus = async (req, res) => {
     }
 };
 
-// Get recommended articles
 exports.getRecommendedArticles = async (req, res) => {
     const { id } = req.params;
     try {
@@ -153,7 +144,6 @@ exports.getRecommendedArticles = async (req, res) => {
     }
 };
 
-// Get comments for an article
 exports.getComments = async (req, res) => {
     const { id } = req.params;
     try {
@@ -171,11 +161,10 @@ exports.getComments = async (req, res) => {
     }
 };
 
-// Add a new comment
 exports.addComment = async (req, res) => {
     try {
-        const { id: article_id } = req.params; // ID artikel
-        const { content, user_id } = req.body; // Isi komentar
+        const { id: article_id } = req.params; 
+        const { content, user_id } = req.body; 
 
         const sql = `INSERT INTO comments (article_id, user_id, content) VALUES (?, ?, ?)`;
         await db.query(sql, [article_id, user_id, content]);
@@ -187,13 +176,11 @@ exports.addComment = async (req, res) => {
     }
 };
 
-// DELETE /comments/:id
 exports.deleteComment = async (req, res) => {
     try {
-        const { id } = req.params; // ID komentar
+        const { id } = req.params; 
         const { user_id, user_role } = req.body;
 
-        // Periksa apakah komentar ada dan milik pengguna
         const [comment] = await db.query(`SELECT user_id FROM comments WHERE id = ?`, [id]);
 
         if (!comment) {

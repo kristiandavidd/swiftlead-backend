@@ -19,7 +19,6 @@ const {
 } = require('../controllers/requestController');
 const router = express.Router();
 
-// Route untuk mendapatkan data swiftlet house dan floor
 router.post('/add', addSwiftletHouse);
 router.post("/installation", requestInstallation);
 router.post("/uninstallation", requestUninstallation);

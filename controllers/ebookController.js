@@ -1,7 +1,6 @@
 const fs = require('fs');
-const db = require('../config/db'); // Sesuaikan dengan konfigurasi database Anda
+const db = require('../config/db');
 
-// Get all eBooks
 exports.getEbooks = async (req, res) => {
     try {
         const [results] = await db.query('SELECT * FROM ebooks ORDER BY created_at DESC');
@@ -12,13 +11,11 @@ exports.getEbooks = async (req, res) => {
     }
 };
 
-// Add eBook
 exports.addEbook = async (req, res) => {
     const { title } = req.body;
     const { ebookFile, thumbnail } = req.files;
 
     try {
-        // Simpan file dan thumbnail path ke database
         const ebookPath = `/uploads/ebooks/${ebookFile[0].filename}`;
         const thumbnailPath = `/uploads/thumbnails/${thumbnail[0].filename}`;
 
@@ -35,7 +32,6 @@ exports.addEbook = async (req, res) => {
     }
 };
 
-// Update eBook
 exports.updateEbook = async (req, res) => {
     const { id } = req.params;
     const { title } = req.body;
@@ -51,19 +47,18 @@ exports.updateEbook = async (req, res) => {
             thumbnail_path: ebook[0].thumbnail_path,
         };
 
-        // Jika ada file baru, simpan dan hapus file lama
         if (ebookFile && ebookFile[0]) {
             const ebookPath = `/uploads/ebooks/${ebookFile[0].filename}`;
             updateFields.file_path = ebookPath;
 
-            fs.unlinkSync(`.${ebook[0].file_path}`); // Hapus file lama
+            fs.unlinkSync(`.${ebook[0].file_path}`); 
         }
 
         if (thumbnail && thumbnail[0]) {
             const thumbnailPath = `/uploads/thumbnails/${thumbnail[0].filename}`;
             updateFields.thumbnail_path = thumbnailPath;
 
-            fs.unlinkSync(`.${ebook[0].thumbnail_path}`); // Hapus thumbnail lama
+            fs.unlinkSync(`.${ebook[0].thumbnail_path}`); 
         }
 
         await db.query(
@@ -78,19 +73,17 @@ exports.updateEbook = async (req, res) => {
     }
 };
 
-// Delete eBook
 exports.deleteEbook = async (req, res) => {
     const { id } = req.params;
+    console.log(id);
 
     try {
         const [ebook] = await db.query('SELECT * FROM ebooks WHERE id = ?', [id]);
         if (!ebook.length) return res.status(404).json({ message: 'E-Book tidak ditemukan.' });
 
-        // Hapus file dan thumbnail dari server
         fs.unlinkSync(`.${ebook[0].file_path}`);
         fs.unlinkSync(`.${ebook[0].thumbnail_path}`);
 
-        // Hapus dari database
         await db.query('DELETE FROM ebooks WHERE id = ?', [id]);
 
         res.json({ message: 'Berhasil menghapus E-Book.' });

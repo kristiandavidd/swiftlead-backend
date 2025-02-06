@@ -3,7 +3,6 @@ const router = express.Router();
 const multer = require('multer');
 const { createHarvestSale, getSales, getSalesById, getSalesByUserId, updateSaleStatus, cancelSale, rescheduleSale } = require('../controllers/salesController');
 
-// 📝 Add Sale
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/harvest/');

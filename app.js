@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
-const { db } = require('./config/firebase'); // Firebase Realtime DB Config
-const { listenFirebaseChanges, startDataSavingInterval } = require('./controllers/firebaseController'); // Pindah ke controller
+const { db } = require('./config/firebase');
+const { listenFirebaseChanges, startDataSavingInterval } = require('./controllers/firebaseController');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -39,7 +39,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Tambahkan route API
 const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
 const controlRouter = require('./routes/control');
@@ -72,7 +71,7 @@ app.use('/transactions', TransactionRoutes);
 app.use('/video', VideoRoutes);
 app.use('/ebook', EbookRoutes);
 
-const activeListeners = {}; // Simpan listener per socket
+const activeListeners = {};
 
 io.on('connection', (socket) => {
     console.log('New client connected:', socket.id);
@@ -85,7 +84,6 @@ io.on('connection', (socket) => {
             console.log(`Unsubscribed from previous sensor for socket: ${socket.id}`);
         }
 
-        // Panggil controller tanpa parameter `firebaseRef`
         activeListeners[socket.id] = listenFirebaseChanges(io, socket, installCode);
     });
 
@@ -99,19 +97,16 @@ io.on('connection', (socket) => {
 });
 
 
-// Mulai penyimpanan data berkala
 startDataSavingInterval();
 
 server.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });
 
-// Handle 404
 app.use((req, res, next) => {
     res.status(404).send("Sorry, can't find that!");
 });
 
-// Handle 500
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');

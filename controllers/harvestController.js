@@ -3,17 +3,15 @@ const mysql = require("mysql2/promise");
 
 exports.addHarvest = async (req, res) => {
     try {
-        const { userId, swiftletHouseId, postHarvestData } = req.body; // Data yang diterima dari frontend
+        const { userId, swiftletHouseId, postHarvestData } = req.body; 
         console.log(userId, swiftletHouseId, postHarvestData);
 
-        // Cek apakah data yang diperlukan ada
         if (!userId || !swiftletHouseId || !Array.isArray(postHarvestData) || postHarvestData.length === 0) {
             return res.status(400).json({ message: 'Data tidak lengkap atau tidak valid.' });
         }
 
-        // Looping untuk menyimpan data per lantai
         for (let i = 0; i < postHarvestData.length; i++) {
-            const floor = i + 1; // Lantai dimulai dari 1
+            const floor = i + 1; 
             const {
                 bowl: { weight: bowlWeight, pieces: bowlPieces },
                 oval: { weight: ovalWeight, pieces: ovalPieces },
@@ -21,7 +19,6 @@ exports.addHarvest = async (req, res) => {
                 fracture: { weight: brokenWeight, pieces: brokenPieces }
             } = postHarvestData[i];
 
-            // Eksekusi query untuk menyimpan data
             await db.query(
                 `INSERT INTO harvests (
                     user_id,

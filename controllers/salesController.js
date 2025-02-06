@@ -20,8 +20,6 @@ exports.createHarvestSale = async (req, res) => {
     }
 };
 
-
-// Fetch Sales
 exports.getSales = async (req, res) => {
     try {
         const [result] = await db.query(`SELECT * FROM harvest_sales ORDER BY created_at DESC`);
@@ -49,12 +47,10 @@ exports.getSalesById = async (req, res) => {
     }
 };
 
-// controllers/salesController.js
 exports.updateSaleStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    // Validate status value
     if (![0, 1, 2, 3, 4, 5].includes(status)) {
         return res.status(400).json({ message: "Status tidak valid." });
     }
@@ -88,7 +84,6 @@ exports.cancelSale = async (req, res) => {
     const { id } = req.params;
 
     try {
-        // Check if the sale exists and its status allows cancellation
         const [sale] = await db.query(`SELECT id, status FROM harvest_sales WHERE id = ?`, [id]);
 
         if (sale.length === 0) {
@@ -101,8 +96,7 @@ exports.cancelSale = async (req, res) => {
                 .status(400)
                 .json({ message: "Pembatalan tidak bisa dilakukan." });
         }
-
-        // Update the status to "Cancelled" (4)
+        
         await db.query(`UPDATE harvest_sales SET status = 4 WHERE id = ?`, [id]);
 
         res.status(200).json({ message: "Pembatalan pengajuan berhasil." });

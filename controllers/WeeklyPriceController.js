@@ -1,10 +1,7 @@
-// controllers/weeklyPriceController.js
-
 const db = require('../config/db');
 const moment = require('moment');
 const momentTimezone = require('moment-timezone');
 
-// 📝 Add Weekly Price
 exports.addWeeklyPrice = async (req, res) => {
     const { prices, week_start, week_end } = req.body;
 
@@ -13,7 +10,6 @@ exports.addWeeklyPrice = async (req, res) => {
     }
 
     try {
-        // Masukkan data harga untuk setiap provinsi
         for (const price of prices) {
             await db.query(
                 `INSERT INTO weekly_birdnest_prices (province, price, week_start, week_end) VALUES (?, ?, ?, ?)`,
@@ -54,14 +50,11 @@ exports.getWeeklyPrice = async (req, res) => {
 
 exports.getWeeklyPrices = async (req, res) => {
     try {
-        // Gunakan moment-timezone untuk mendapatkan waktu sekarang di Asia/Jakarta
         const now = momentTimezone.tz("Asia/Jakarta");
 
-        // Tentukan awal dan akhir minggu (Minggu ke Sabtu)
-        const startOfWeek = now.clone().startOf("week"); // Minggu
-        const endOfWeek = now.clone().endOf("week"); // Sabtu
+        const startOfWeek = now.clone().startOf("week"); 
+        const endOfWeek = now.clone().endOf("week"); 
 
-        // Format tanggal menjadi string (YYYY-MM-DD)
         const startDate = startOfWeek.format("YYYY-MM-DD");
         const endDate = endOfWeek.format("YYYY-MM-DD");
 
@@ -69,7 +62,6 @@ exports.getWeeklyPrices = async (req, res) => {
         console.log("Start of Week (WIB):", startDate);
         console.log("End of Week (WIB):", endDate);
 
-        // Query database
         const query = `
             SELECT * FROM weekly_birdnest_prices
             WHERE week_start = ? AND week_end = ?
@@ -97,10 +89,9 @@ exports.getWeeklyPrices = async (req, res) => {
 };
 
 exports.getWeeklyAveragePrice = async (req, res) => {
-    const today = moment().format('YYYY-MM-DD'); // Ambil tanggal hari ini
+    const today = moment().format('YYYY-MM-DD'); 
 
     try {
-        // Query untuk mengambil semua harga minggu ini
         const [result] = await db.query(`
             SELECT price 
             FROM weekly_birdnest_prices 
@@ -111,11 +102,10 @@ exports.getWeeklyAveragePrice = async (req, res) => {
             return res.status(404).json({ message: 'Tidak ada data harga untuk minggu ini.' });
         }
 
-        // Menghitung rata-rata harga
         const totalPrice = result.reduce((total, row) => total + parseFloat(row.price), 0);
         const averagePrice = totalPrice / result.length;
 
-        res.json({ averagePrice: averagePrice.toFixed(2) }); // Kembalikan rata-rata dengan 2 angka desimal
+        res.json({ averagePrice: averagePrice.toFixed(2) });
     } catch (error) {
         console.error('Error fetching weekly prices:', error);
         res.status(500).json({ error: 'Gagal mendapatkan data harga mingguan.' });
