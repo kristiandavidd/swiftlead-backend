@@ -3,7 +3,7 @@ const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
 const { db } = require('./config/firebase'); // Firebase Realtime DB Config
-const { getUserDevices } = require('./controllers/deviceController'); // Controller untuk MySQL
+const { listenFirebaseChanges, startDataSavingInterval } = require('./controllers/firebaseController'); // Pindah ke controller
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -24,48 +24,7 @@ const io = socketIo(server, {
     },
 });
 
-const activeListeners = {}; // Melacak listener Firebase per socket
-
-io.on('connection', (socket) => {
-    console.log('New client connected:', socket.id);
-
-    socket.on('subscribeToSensor', async ({ installCode }) => {
-        console.log(`Subscribing to sensor: ${installCode}`);
-
-        // Hentikan listener sebelumnya jika ada
-        if (activeListeners[socket.id]) {
-            activeListeners[socket.id].off();
-            console.log(`Unsubscribed from previous sensor for socket: ${socket.id}`);
-        }
-
-        // Pasang listener baru
-        const ref = db.ref(`/device/${installCode}`);
-        ref.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                io.to(socket.id).emit('sensorData', { installCode, ...data });
-                console.log(`Data received for installCode ${installCode}:`, data);
-            } else {
-                io.to(socket.id).emit('sensorData', { installCode, Suhu: null, Kelembaban: null });
-                console.log(`No data available for installCode: ${installCode}`);
-            }
-        });
-
-        // Simpan reference listener baru
-        activeListeners[socket.id] = ref;
-    });
-
-    socket.on('disconnect', () => {
-        if (activeListeners[socket.id]) {
-            activeListeners[socket.id].off();
-            delete activeListeners[socket.id];
-        }
-        console.log('Client disconnected:', socket.id);
-    });
-});
-
 app.use(compression());
-
 app.use(cors({
     origin: [
         'http://localhost:3000',
@@ -111,7 +70,37 @@ app.use('/device', DeviceRoutes);
 app.use('/request', RequestRoutes);
 app.use('/transactions', TransactionRoutes);
 app.use('/video', VideoRoutes);
-app.use('/ebook', EbookRoutes)
+app.use('/ebook', EbookRoutes);
+
+const activeListeners = {}; // Simpan listener per socket
+
+io.on('connection', (socket) => {
+    console.log('New client connected:', socket.id);
+
+    socket.on('subscribeToSensor', async ({ installCode }) => {
+        console.log(`Subscribing to sensor: ${installCode}`);
+
+        if (activeListeners[socket.id]) {
+            activeListeners[socket.id].off();
+            console.log(`Unsubscribed from previous sensor for socket: ${socket.id}`);
+        }
+
+        // Panggil controller tanpa parameter `firebaseRef`
+        activeListeners[socket.id] = listenFirebaseChanges(io, socket, installCode);
+    });
+
+    socket.on('disconnect', () => {
+        if (activeListeners[socket.id]) {
+            activeListeners[socket.id].off();
+            delete activeListeners[socket.id];
+        }
+        console.log('Client disconnected:', socket.id);
+    });
+});
+
+
+// Mulai penyimpanan data berkala
+startDataSavingInterval();
 
 server.listen(port, () => {
     console.log(`Server is running on port: ${port}`);

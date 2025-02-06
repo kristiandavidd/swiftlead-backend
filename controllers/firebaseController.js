@@ -1,60 +1,68 @@
 const { saveAverageToDatabase } = require('../models/historicalDataModel');
-let dataBuffer = [];
-let lastData = null;
-let startTime = Date.now();
+const { db } = require('../config/firebase');
 
-const listenFirebaseChanges = (firebaseRef, io, installCode) => {
+let dataBuffer = {}; // Buffer data per perangkat
+
+const listenFirebaseChanges = (io, socket, installCode) => {
     const devicePath = `/device/${installCode}`;
-
     console.log(`Listening to Firebase changes for device: ${installCode}`);
 
-    const ref = firebaseRef.child(devicePath);
+    const ref = db.ref(devicePath);
 
-    // Dengarkan perubahan data Firebase
     ref.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
-            io.to(socket.id).emit('sensorData', { installCode: device.installCode, ...data });
-            console.log(`Data received for installCode ${device.installCode}:`, data);
+            io.to(socket.id).emit('sensorData', { installCode, ...data });
+            console.log(`Data received for installCode ${installCode}:`, data);
+
+            if (!dataBuffer[installCode]) dataBuffer[installCode] = [];
+            dataBuffer[installCode].push({ suhu: data.Suhu, kelembaban: data.Kelembaban });
+
         } else {
-            console.log(`No data available for installCode: ${device.installCode}`);
-            io.to(socket.id).emit('sensorData', { installCode: device.installCode, Suhu: null, Kelembaban: null });
+            console.log(`No data available for installCode: ${installCode}`);
+            io.to(socket.id).emit('sensorData', { installCode, Suhu: null, Kelembaban: null });
         }
     }, (error) => {
         console.error('Error fetching data from Firebase:', error);
     });
+
+    return ref;
 };
 
 const saveDataAtInterval = () => {
-    if (lastData) {
-        console.log('Saving data based on interval...');
+    console.log('Saving data based on interval...');
+    const timestamp = new Date();
 
-        const avgSuhu = dataBuffer.reduce((sum, entry) => sum + entry.suhu, 0) / dataBuffer.length || lastData.suhu;
-        const avgKelembapan = dataBuffer.reduce((sum, entry) => sum + entry.kelembapan, 0) / dataBuffer.length || lastData.kelembapan;
-        const timestamp = new Date();
+    Object.keys(dataBuffer).forEach(installCode => {
+        const buffer = dataBuffer[installCode];
 
-        saveAverageToDatabase({
-            suhu: avgSuhu,
-            kelembapan: avgKelembapan,
-            timestamp: timestamp
-        }).then(() => {
-            console.log('Data saved to database:', {
+        if (buffer.length > 0) {
+            const avgSuhu = buffer.reduce((sum, entry) => sum + entry.suhu, 0) / buffer.length;
+            const avgKelembaban = buffer.reduce((sum, entry) => sum + entry.kelembaban, 0) / buffer.length;
+
+            saveAverageToDatabase({
+                installCode,  // Pastikan installCode dikirim ke database
                 suhu: avgSuhu,
-                kelembapan: avgKelembapan,
-                timestamp: timestamp
+                kelembaban: avgKelembaban,
+                timestamp
+            }).then(() => {
+                console.log(`Data saved to database for ${installCode}:`, {
+                    suhu: avgSuhu,
+                    kelembaban: avgKelembaban,
+                    timestamp
+                });
+            }).catch((error) => {
+                console.error(`Error saving data for ${installCode}:`, error);
             });
-        }).catch((error) => {
-            console.error('Error saving data to database:', error);
-        });
 
-        dataBuffer = [];
-        startTime = Date.now();
-    }
+            dataBuffer[installCode] = []; // Reset buffer setelah penyimpanan
+        }
+    });
 };
 
 const startDataSavingInterval = () => {
     console.log('Starting global data saving interval...');
-    setInterval(saveDataAtInterval, 3600000);
+    setInterval(saveDataAtInterval, 30000); // Simpan setiap 30 detik
 };
 
 module.exports = { listenFirebaseChanges, startDataSavingInterval };
